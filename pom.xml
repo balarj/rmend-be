@@ -39,6 +39,14 @@
             <version>1.2</version>
         </dependency>
 
+        <!-- RMend commons -->
+        <dependency>
+            <groupId>com.brajagopal.rmend</groupId>
+            <artifactId>rmend-commons</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <!-- Jersey JAX-RS dependencies -->
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
