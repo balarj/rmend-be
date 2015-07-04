@@ -1,19 +1,14 @@
 package com.brajagopal.rmend.be.service;
-import com.brajagopal.rmend.be.service.resources.ContentRecommenderResource;
-
-import javax.ws.rs.core.Application;
-import java.util.HashSet;
-import java.util.Set;
+import com.brajagopal.rmend.be.utils.GsonProvider;
+import org.glassfish.jersey.server.ResourceConfig;
 
 /**
  * @author <bxr4261>
  */
-public class RMendAPI extends Application {
+public class RMendAPI extends ResourceConfig {
 
-    @Override
-    public Set<Class<?>> getClasses() {
-        final Set<Class<?>> classes = new HashSet<Class<?>>();
-        classes.add(ContentRecommenderResource.class);
-        return classes;
+    public RMendAPI() {
+        //register(JacksonFeature.class);
+        register(GsonProvider.class);
     }
 }
