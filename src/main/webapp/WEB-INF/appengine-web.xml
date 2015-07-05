@@ -3,8 +3,10 @@
     <application>${app.id}</application>
     <version>${app.version}</version>
     <threadsafe>true</threadsafe>
-    
     <system-properties>
         <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
     </system-properties>
+    <env-variables>
+        <env-var name="DATASTORE_DATASET" value="rmend-be" />
+    </env-variables>
 </appengine-web-app>
