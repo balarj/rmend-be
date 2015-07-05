@@ -13,7 +13,9 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.io.InvalidClassException;
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -51,6 +53,12 @@ public class DocumentResource extends BaseResource {
             errorMsg = e.getMessage();
             logger.warn(e);
         } catch (InstantiationException e) {
+            errorMsg = e.getMessage();
+            logger.warn(e);
+        } catch (GeneralSecurityException e) {
+            errorMsg = e.getMessage();
+            logger.warn(e);
+        } catch (IOException e) {
             errorMsg = e.getMessage();
             logger.warn(e);
         }
