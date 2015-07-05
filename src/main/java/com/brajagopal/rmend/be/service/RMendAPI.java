@@ -8,7 +8,6 @@ import org.glassfish.jersey.server.ResourceConfig;
 public class RMendAPI extends ResourceConfig {
 
     public RMendAPI() {
-        //register(JacksonFeature.class);
         register(GsonProvider.class);
     }
 }
