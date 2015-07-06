@@ -33,7 +33,7 @@ public class DocumentResource extends BaseResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/{topic}")
+    @Path("/topic/{topic}")
     public Response getDocumentByTopic(@PathParam("topic") String topic) {
 
         Response.Status responseStatus = Response.Status.INTERNAL_SERVER_ERROR;
@@ -69,6 +69,26 @@ public class DocumentResource extends BaseResource {
             logger.warn(e);
         }
         return Response.status(responseStatus).header("X-Error-Msg", errorMsg).build();
+    }
 
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/{docNumber}")
+    public Response getDocumentByNumber(@PathParam("docNumber") long docNumber) {
+
+        Response.Status responseStatus = Response.Status.INTERNAL_SERVER_ERROR;
+
+        String errorMsg = "NA";
+        try {
+            DocumentBean retVal = getDao().getDocument(docNumber);
+            return Response.ok().entity(retVal).build();
+        } catch (DatastoreException e) {
+            logger.warn(e);
+        } catch (DocumentNotFoundException e) {
+            responseStatus = Response.Status.NOT_FOUND;
+            errorMsg = e.getMessage();
+            logger.warn(e);
+        }
+        return Response.status(responseStatus).header("X-Error-Msg", errorMsg).build();
     }
 }
