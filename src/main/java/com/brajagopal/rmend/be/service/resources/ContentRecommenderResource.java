@@ -23,10 +23,10 @@ import java.util.Collection;
 /**
  * @author <bxr4261>
  */
-@Path("v1/content")
+@Path("v1/recommend/content")
 public class ContentRecommenderResource extends BaseResource {
 
-    static Logger logger = Logger.getLogger(DocumentResource.class);
+    static Logger logger = Logger.getLogger(ContentRecommenderResource.class);
 
     @Context
     Request request;
