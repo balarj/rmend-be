@@ -2,6 +2,7 @@ package com.brajagopal.rmend.be.service.resources;
 
 import com.brajagopal.rmend.be.recommender.ContentRecommender;
 import com.brajagopal.rmend.data.beans.DocumentBean;
+import com.brajagopal.rmend.exception.DocumentNotFoundException;
 import com.google.api.services.datastore.client.DatastoreException;
 import org.apache.log4j.Logger;
 
@@ -35,7 +36,8 @@ public class DocumentResource extends BaseResource {
     @Path("/{topic}")
     public Response getDocumentByTopic(@PathParam("topic") String topic) {
 
-        Response.ResponseBuilder builder = Response.serverError();
+        Response.Status responseStatus = Response.Status.INTERNAL_SERVER_ERROR;
+
         String errorMsg = "NA";
         Collection<DocumentBean> retVal = new ArrayList<>();
         try {
@@ -61,8 +63,12 @@ public class DocumentResource extends BaseResource {
         } catch (IOException e) {
             errorMsg = e.getMessage();
             logger.warn(e);
+        } catch (DocumentNotFoundException e) {
+            responseStatus = Response.Status.NOT_FOUND;
+            errorMsg = e.getMessage();
+            logger.warn(e);
         }
-        return Response.serverError().header("X-Error-Msg", errorMsg).build();
+        return Response.status(responseStatus).header("X-Error-Msg", errorMsg).build();
 
     }
 }
