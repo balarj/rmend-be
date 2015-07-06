@@ -47,7 +47,7 @@ public class BaseResource {
         return contentRecommender;
     }
 
-    public GoogleCredential getCredentials() throws GeneralSecurityException, IOException {
+    private GoogleCredential getCredentials() throws GeneralSecurityException, IOException {
         HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
         JacksonFactory jsonFactory = new JacksonFactory();
         File fCredPk = new File("conf/rmend-be.p12");
