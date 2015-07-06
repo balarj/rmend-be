@@ -6,6 +6,7 @@ import com.brajagopal.rmend.data.beans.BaseContent;
 import com.brajagopal.rmend.data.beans.DocumentBean;
 import com.brajagopal.rmend.data.beans.TopicBean;
 import com.brajagopal.rmend.data.meta.DocumentMeta;
+import com.brajagopal.rmend.exception.DocumentNotFoundException;
 import com.google.api.services.datastore.client.DatastoreException;
 import com.google.common.collect.TreeMultimap;
 import org.apache.commons.collections4.CollectionUtils;
@@ -35,7 +36,7 @@ public class ContentRecommender {
      * @return
      * @throws com.google.api.services.datastore.client.DatastoreException
      */
-    public Collection<DocumentBean> getContentByTopic(TopicBean _topicBean, ResultsType _resultsType) throws DatastoreException {
+    public Collection<DocumentBean> getContentByTopic(TopicBean _topicBean, ResultsType _resultsType) throws DatastoreException, DocumentNotFoundException {
         Collection<DocumentBean> docBeans = new ArrayList<DocumentBean>();
         Collection<DocumentMeta> docMetaCollection = getDocumentMeta(ContentDictionary.makeKeyFromBean(_topicBean), _resultsType);
         for (DocumentMeta documentMeta : docMetaCollection) {
@@ -52,7 +53,7 @@ public class ContentRecommender {
      * @return
      * @throws com.google.api.services.datastore.client.DatastoreException
      */
-    public Collection<DocumentBean> getSimilarContent(final long _documentNumber, ResultsType _resultsType) throws DatastoreException {
+    public Collection<DocumentBean> getSimilarContent(final long _documentNumber, ResultsType _resultsType) throws DatastoreException, DocumentNotFoundException {
         DocumentBean baseDocument = dao.getDocument(_documentNumber);
         TreeMultimap<BaseContent.ContentType, BaseContent> relevantBeans = baseDocument.getRelevantBeans();
         SortedSet<BaseContent> topicRelatedBeans = relevantBeans.removeAll(BaseContent.ContentType.TOPICS);
