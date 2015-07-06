@@ -30,7 +30,7 @@ public class CFRecommenderResource extends BaseResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/{docNumber}")
+    @Path("/document/{docNumber}")
     public Response getRecommendation(@PathParam("docNumber") long docNumber) {
         Response.Status responseStatus = Response.Status.NOT_IMPLEMENTED;
         String errorMsg = "NA";

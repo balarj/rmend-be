@@ -34,12 +34,12 @@ public class ContentRecommenderResource extends BaseResource {
     @Produces("application/json")
     @Path("/hello")
     public String sayHello() {
-        return "Hello";
+        return "Hello from '"+getClass().getSimpleName() + "'";
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/{docNumber}")
+    @Path("/document/{docNumber}")
     public Response getRecommendation(@PathParam("docNumber") long docNumber) {
         Response.Status responseStatus = Response.Status.INTERNAL_SERVER_ERROR;
 
