@@ -2,6 +2,7 @@ package com.brajagopal.rmend.be.recommender;
 
 import com.brajagopal.rmend.dao.IRMendDao;
 import com.brajagopal.rmend.data.ContentDictionary;
+import com.brajagopal.rmend.data.ResultsType;
 import com.brajagopal.rmend.data.beans.BaseContent;
 import com.brajagopal.rmend.data.beans.DocumentBean;
 import com.brajagopal.rmend.data.beans.TopicBean;
@@ -64,7 +65,7 @@ public class ContentRecommender {
             entityIds.add(ContentDictionary.makeKeyFromBean(contentBean));
         }
 
-        TreeMultimap<BaseContent.ContentType, DocumentMeta> entityResult = dao.getEntityMeta(entityIds);
+        TreeMultimap<BaseContent.ContentType, DocumentMeta> entityResult = dao.getEntityMeta(entityIds, _resultsType);
         Collection<DocumentMeta> result = new ArrayList<DocumentMeta>();
         for (BaseContent.ContentType contentType : entityResult.keySet()) {
             Collection<DocumentMeta> docMetas = new ArrayList<DocumentMeta>(entityResult.get(contentType));
@@ -77,7 +78,8 @@ public class ContentRecommender {
             result.addAll(ResultsType.getResults(docMetas, _resultsType));
         }
 
-        // Filter down the result
+        // Filter down the result (select randomly from the top results)
+        result = ResultsType.getResults(result, ResultsType.RANDOM_10);
         result = ResultsType.getResults(result, _resultsType);
 
         Collection<DocumentBean> recommendedResults = new ArrayList<DocumentBean>();
@@ -88,65 +90,7 @@ public class ContentRecommender {
         return recommendedResults;
     }
 
-    public static enum ResultsType {
-        RANDOM_10(20),
-        TOP_10(10),
-        TOP_5(5),
-        TOP_3(3),
-        TOP_1(1),
-        ALL(20);
 
-        private int daoResultLimit;
-
-        private ResultsType(int _daoResultLimit) {
-            daoResultLimit = _daoResultLimit;
-        }
-
-        protected int getDaoResultLimit() {
-            return daoResultLimit;
-        }
-
-        public static Collection<DocumentMeta> getResults(Collection<DocumentMeta> _input, ResultsType _type) {
-            if(_input == null || _input.isEmpty()) {
-                return CollectionUtils.EMPTY_COLLECTION;
-            }
-
-            final List<DocumentMeta> value = new ArrayList<DocumentMeta>(_input);
-            switch (_type){
-                case RANDOM_10:
-                    if (value.size() > 10) {
-                        Collections.shuffle(value);
-                        return value.subList(0, 10);
-                    }
-                    return value;
-                case TOP_10:
-                    if (value.size() > 10) {
-                        Collections.sort(value, DocumentMeta.DOCUMENT_META_COMPARATOR);
-                        return value.subList(0, 10);
-                    }
-                    return value;
-                case TOP_5:
-                    if (value.size() > 5) {
-                        Collections.sort(value, DocumentMeta.DOCUMENT_META_COMPARATOR);
-                        return value.subList(0, 5);
-                    }
-                    return value;
-                case TOP_3:
-                    if (value.size() > 3) {
-                        Collections.sort(value, DocumentMeta.DOCUMENT_META_COMPARATOR);
-                        return value.subList(0, 3);
-                    }
-                    return value;
-                case ALL:
-                    Collections.sort(value, DocumentMeta.DOCUMENT_META_COMPARATOR);
-                    return value;
-                case TOP_1:
-                default:
-                    Collections.sort(value, DocumentMeta.DOCUMENT_META_COMPARATOR);
-                    return value.subList(0, 1);
-            }
-        }
-    }
 
     public static TopicBean makeTopicBean(String _topic) throws IllegalAccessException, InvalidClassException, InstantiationException {
         Map<String, String> beanValues = new HashMap<String, String>();
