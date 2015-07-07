@@ -22,12 +22,6 @@ public class CFRecommenderResource extends BaseResource {
     @Context
     Request request;
 
-    @Produces("application/json")
-    @Path("/hello")
-    public String sayHello() {
-        return "Hello from '"+getClass().getSimpleName() + "'";
-    }
-
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/document/{docNumber}")

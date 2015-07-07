@@ -10,6 +10,10 @@ import com.google.api.client.json.jackson.JacksonFactory;
 import com.google.api.services.datastore.client.DatastoreOptions;
 import org.apache.log4j.Logger;
 
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -17,12 +21,19 @@ import java.security.GeneralSecurityException;
 /**
  * @author <bxr4261>
  */
-public class BaseResource {
+public abstract class BaseResource {
 
     private final Logger logger = Logger.getLogger(BaseResource.class);
     private static IRMendDao dao;
     private static ContentRecommender contentRecommender;
     private static final String SERVICE_ACCOUNT_EMAIL = "777065455744-gqlc8dar2us2amkcig46lt0fffrarlqc@developer.gserviceaccount.com";
+
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    @Path("/ping")
+    public String ping() {
+        return "pong from '"+getClass().getSimpleName() + "'";
+    }
 
     public IRMendDao getDao() {
         if (dao == null) {
