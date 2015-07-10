@@ -27,7 +27,7 @@ public class UserResource extends BaseResource {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/create/{userName}")
+    @Path("/{userName}")
     public Response createUser(@PathParam("userName") String userName) {
 
         Response.ResponseBuilder response = Response.serverError();
@@ -64,4 +64,31 @@ public class UserResource extends BaseResource {
     }
 
 
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/{userName}")
+    public Response getUser(@PathParam("userName") String userName) {
+        Response.ResponseBuilder response = Response.serverError();
+
+        EntityManagerFactory factory = Persistence.createEntityManagerFactory("users-entity");
+        EntityManager manager = factory.createEntityManager();
+        UserBean retVal;
+        try {
+            UserEntity userEntity = manager.find(UserEntity.class, userName);
+            if (userEntity == null) {
+                return response.status(Response.Status.NOT_FOUND).build();
+            }
+            retVal = userEntity.getUserBean();
+        }
+        catch (Exception e) {
+            logger.error(e);
+            manager.getTransaction().rollback();
+            return response.header("X-Error-Msg", e.getMessage()).status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+        finally {
+            manager.close();
+        }
+
+        return response.status(Response.Status.OK).entity(retVal).build();
+    }
 }
