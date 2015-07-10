@@ -78,4 +78,7 @@ public class UserEntity {
                 '}';
     }
 
+    public UserBean getUserBean() {
+        return UserBean.load(getUid(), getUserName(), getUuid(), getCreatedDate());
+    }
 }
