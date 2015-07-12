@@ -20,6 +20,8 @@ import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author <bxr4261>
@@ -27,8 +29,11 @@ import java.security.GeneralSecurityException;
 public abstract class BaseResource {
 
     private final Logger logger = Logger.getLogger(BaseResource.class);
+
     private static IRMendDao dao;
     private static ContentRecommender contentRecommender;
+    private static Map<String, EntityManagerFactory> factory = new HashMap<String, EntityManagerFactory>();
+
     private static final String SERVICE_ACCOUNT_EMAIL =
             "777065455744-gqlc8dar2us2amkcig46lt0fffrarlqc@developer.gserviceaccount.com";
 
@@ -78,8 +83,12 @@ public abstract class BaseResource {
         return credential;
     }
 
-    protected EntityManager getEntityManager(String persistenceUnitName) {
-        EntityManagerFactory factory = Persistence.createEntityManagerFactory(persistenceUnitName);
-        return factory.createEntityManager();
+    protected static EntityManager getEntityManager(String persistenceUnitName, Logger _logger) {
+        if (!factory.containsKey(persistenceUnitName)) {
+            _logger.info("Creating persistence unit: " + persistenceUnitName);
+            factory.put(persistenceUnitName,
+                    Persistence.createEntityManagerFactory(persistenceUnitName));
+        }
+        return factory.get(persistenceUnitName).createEntityManager();
     }
 }
