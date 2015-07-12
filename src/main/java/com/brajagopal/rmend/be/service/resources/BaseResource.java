@@ -10,6 +10,9 @@ import com.google.api.client.json.jackson.JacksonFactory;
 import com.google.api.services.datastore.client.DatastoreOptions;
 import org.apache.log4j.Logger;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -26,7 +29,8 @@ public abstract class BaseResource {
     private final Logger logger = Logger.getLogger(BaseResource.class);
     private static IRMendDao dao;
     private static ContentRecommender contentRecommender;
-    private static final String SERVICE_ACCOUNT_EMAIL = "777065455744-gqlc8dar2us2amkcig46lt0fffrarlqc@developer.gserviceaccount.com";
+    private static final String SERVICE_ACCOUNT_EMAIL =
+            "777065455744-gqlc8dar2us2amkcig46lt0fffrarlqc@developer.gserviceaccount.com";
 
     @GET
     @Produces(MediaType.TEXT_PLAIN)
@@ -72,5 +76,10 @@ public abstract class BaseResource {
                 .build();
 
         return credential;
+    }
+
+    protected EntityManager getEntityManager(String persistenceUnitName) {
+        EntityManagerFactory factory = Persistence.createEntityManagerFactory(persistenceUnitName);
+        return factory.createEntityManager();
     }
 }
