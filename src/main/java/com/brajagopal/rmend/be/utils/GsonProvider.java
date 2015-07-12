@@ -1,7 +1,7 @@
 package com.brajagopal.rmend.be.utils;
 
+import com.brajagopal.rmend.utils.JsonUtils;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Produces;
@@ -29,8 +29,9 @@ public class GsonProvider implements MessageBodyReader<Object>, MessageBodyWrite
 
     private Gson getGson() {
         if (null == gson) {
-            final GsonBuilder gsonBuilder = new GsonBuilder();
-            gson = gsonBuilder.create();
+            //final GsonBuilder gsonBuilder = new GsonBuilder();
+            //gson = gsonBuilder.create();
+            gson = JsonUtils.getGsonInstance();
         }
 
         return gson;
