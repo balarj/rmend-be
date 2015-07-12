@@ -33,7 +33,10 @@ public class UserEntity {
     public UserEntity() {}
 
     public static UserEntity createInstance(UserBean _userBean) {
-        return new UserEntity(_userBean.getUserName(), _userBean.getUuid());
+        return new UserEntity(
+                _userBean.getUserName(),
+                _userBean.getUuid()
+        );
     }
 
     public long getUid() {
