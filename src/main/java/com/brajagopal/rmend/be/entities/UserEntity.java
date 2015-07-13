@@ -14,7 +14,7 @@ import javax.persistence.*;
 public class UserEntity {
 
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @Unindexed private Long uid;
+    private Long uid;
     @Id private String userName;
     private String uuid;
     @Unindexed private String createdDate;
