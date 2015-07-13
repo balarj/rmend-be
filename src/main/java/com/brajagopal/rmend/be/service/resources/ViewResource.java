@@ -4,11 +4,14 @@ import com.brajagopal.rmend.app.beans.UserBean;
 import com.brajagopal.rmend.app.beans.UserViewBean;
 import com.brajagopal.rmend.be.entities.ViewEntity;
 import com.brajagopal.rmend.exception.UserNotFoundException;
+import com.google.common.base.Strings;
 import org.apache.log4j.Logger;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -20,6 +23,9 @@ public class ViewResource extends BaseResource {
 
     static Logger logger = Logger.getLogger(UserResource.class);
 
+    @Context
+    HttpServletRequest request;
+
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/impression")
@@ -29,12 +35,55 @@ public class ViewResource extends BaseResource {
         //TODO: Validate if the uid and docNum are valid
         EntityManager manager = getEntityManager("users-entity", logger);
 
+        if (userViewBean.getIsInvalid()) {
+            return response.status(Response.Status.BAD_REQUEST).build();
+        }
+
+
+        logger.info("isStrict: "+isValidationStrict());
+        boolean isValid = false;
+
+
+        if (!Strings.isNullOrEmpty(userViewBean.getUuid())) {
+            try {
+                UserBean bean = UserBaseResource.getUserByUUID(userViewBean.getUuid());
+                userViewBean.setUid(bean.getUid());
+                isValid = true;
+            } catch (UserNotFoundException e) {
+                if (isValidationStrict()) {
+                    return response
+                            .header("X-Error-Msg", e.getMessage())
+                            .header("X-UUID", userViewBean.getUuid())
+                            .status(Response.Status.NOT_FOUND)
+                            .build();
+                }
+            }
+        }
+        if (!isValid) {
+            try {
+                UserBean bean = UserBaseResource.getUserByUID(userViewBean.getUid());
+                userViewBean.setUid(bean.getUid());
+            } catch (UserNotFoundException e) {
+                if (isValidationStrict()) {
+                    return response
+                            .header("X-Error-Msg", e.getMessage())
+                            .header("X-UID", userViewBean.getUid())
+                            .status(Response.Status.NOT_FOUND)
+                            .build();
+                }
+            }
+        }
+
+
         try {
             manager.getTransaction().begin();
             ViewEntity entity = manager.find(ViewEntity.class, userViewBean.getCompositeKey());
+
+            // It is OK to view the same asset more than once!
             /*if (entity != null) {
                 throw new DuplicateEntryException(userViewBean.getCompositeKey());
             }*/
+
             ViewEntity viewEntity = ViewEntity.createInstance(userViewBean);
             manager.persist(viewEntity);
             manager.getTransaction().commit();
@@ -106,5 +155,10 @@ public class ViewResource extends BaseResource {
                 .header("X-UUID", uuId)
                 .header("X-Deleted-Count", deletedCount)
                 .build();
+    }
+
+    private boolean isValidationStrict() {
+        String validationMode = request.getHeader("X-Validation-Mode");
+        return (validationMode != null && validationMode.equalsIgnoreCase("STRICT"));
     }
 }
