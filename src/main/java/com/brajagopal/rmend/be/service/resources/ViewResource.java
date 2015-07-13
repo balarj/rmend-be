@@ -39,11 +39,7 @@ public class ViewResource extends BaseResource {
             return response.status(Response.Status.BAD_REQUEST).build();
         }
 
-
-        logger.info("isStrict: "+isValidationStrict());
         boolean isValid = false;
-
-
         if (!Strings.isNullOrEmpty(userViewBean.getUuid())) {
             try {
                 UserBean bean = UserBaseResource.getUserByUUID(userViewBean.getUuid());

@@ -46,7 +46,6 @@ public class UserBaseResource extends BaseResource {
                     + UserEntity.class.getName()
                     + " u WHERE u.uid = " + uid + "");
             List<UserEntity> results = query.getResultList();
-            logger.info(results);
             if (results.isEmpty()) {
                 throw new UserNotFoundException(uid);
             }
