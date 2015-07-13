@@ -37,4 +37,27 @@ public class UserBaseResource extends BaseResource {
             manager.close();
         }
     }
+
+    public static UserBean getUserByUID(Long uid) throws UserNotFoundException {
+        EntityManager manager = getEntityManager("users-entity", logger);
+        UserBean retVal;
+        try {
+            Query query = manager.createQuery("SELECT u FROM "
+                    + UserEntity.class.getName()
+                    + " u WHERE u.uid = " + uid + "");
+            List<UserEntity> results = query.getResultList();
+            logger.info(results);
+            if (results.isEmpty()) {
+                throw new UserNotFoundException(uid);
+            }
+            else if (results.size() > 1) {
+                throw new UnsupportedOperationException(
+                        "Too many ("+results.size()+") entities with the same UID ("+uid+")");
+            }
+            return results.get(0).getUserBean();
+        }
+        finally {
+            manager.close();
+        }
+    }
 }
