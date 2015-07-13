@@ -20,7 +20,7 @@ import java.util.*;
 /**
  * @author <bxr4261>
  */
-public class ContentRecommender {
+public class ContentRecommender implements IRecommender {
 
     private IRMendDao dao;
     private static final Logger logger = Logger.getLogger(ContentRecommender.class);
@@ -54,7 +54,11 @@ public class ContentRecommender {
      * @return
      * @throws com.google.api.services.datastore.client.DatastoreException
      */
-    public Collection<DocumentBean> getSimilarContent(final long _documentNumber, ResultsType _resultsType) throws DatastoreException, DocumentNotFoundException {
+    @Override
+    public Collection<DocumentBean> getRecommendation(
+            final long _documentNumber,
+            ResultsType _resultsType) throws DatastoreException, DocumentNotFoundException {
+
         DocumentBean baseDocument = dao.getDocument(_documentNumber);
         TreeMultimap<BaseContent.ContentType, BaseContent> relevantBeans = baseDocument.getRelevantBeans();
         SortedSet<BaseContent> topicRelatedBeans = relevantBeans.removeAll(BaseContent.ContentType.TOPICS);

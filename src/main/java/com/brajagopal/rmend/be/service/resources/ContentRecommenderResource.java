@@ -40,7 +40,7 @@ public class ContentRecommenderResource extends BaseResource {
 
         String errorMsg = "NA";
         try {
-            Collection<DocumentBean> retVal = getRecommender().getSimilarContent(docNumber, resultsType);
+            Collection<DocumentBean> retVal = getRecommender().getRecommendation(docNumber, resultsType);
             if (retVal.isEmpty()) {
                 return Response.status(
                         Response.Status.NOT_FOUND)
