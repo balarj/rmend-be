@@ -10,7 +10,7 @@ import javax.persistence.*;
  * @author <bxr4261>
  */
 @Entity
-@Table(name = "USER")
+@Table(name = "USERS")
 public class UserEntity {
 
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
