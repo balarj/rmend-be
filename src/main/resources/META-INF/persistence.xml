@@ -8,6 +8,8 @@
         <provider>org.datanucleus.api.jpa.PersistenceProviderImpl</provider>
         <class>com.brajagopal.rmend.be.entities.UserEntity</class>
         <class>com.brajagopal.rmend.be.entities.ViewEntity</class>
+        <class>com.brajagopal.rmend.be.entities.ImpressionItemsEntity</class>
+        <class>com.brajagopal.rmend.be.entities.ImpressionUsersEntity</class>
         <exclude-unlisted-classes>true</exclude-unlisted-classes>
         <properties>
             <property name="javax.persistence.query.timeout" value="5000"/>
