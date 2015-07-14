@@ -2,6 +2,8 @@ package com.brajagopal.rmend.be.service.resources;
 
 import com.brajagopal.rmend.app.beans.UserBean;
 import com.brajagopal.rmend.app.beans.UserViewBean;
+import com.brajagopal.rmend.be.entities.ImpressionItemsEntity;
+import com.brajagopal.rmend.be.entities.ImpressionUsersEntity;
 import com.brajagopal.rmend.be.entities.ViewEntity;
 import com.brajagopal.rmend.exception.UserNotFoundException;
 import com.google.common.base.Strings;
@@ -81,7 +83,16 @@ public class ViewResource extends BaseResource {
             }*/
 
             ViewEntity viewEntity = ViewEntity.createInstance(userViewBean);
+
+            ImpressionItemsEntity impressionItemsEntity =
+                    ImpressionItemsEntity.createInstance(userViewBean.getDocNum());
+
+            ImpressionUsersEntity impressionUsersEntity =
+                    ImpressionUsersEntity.createInstance(userViewBean.getUid());
+
             manager.persist(viewEntity);
+            manager.persist(impressionItemsEntity);
+            manager.persist(impressionUsersEntity);
             manager.getTransaction().commit();
         }
         /*catch (DuplicateEntryException e) {
