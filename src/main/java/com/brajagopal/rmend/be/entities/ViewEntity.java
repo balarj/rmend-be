@@ -13,26 +13,19 @@ import javax.persistence.*;
 @Table(name = "IMPRESSIONS")
 public class ViewEntity {
 
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @Unindexed private Long id;
     private Long uid;
     private Long docNum;
     @Unindexed private long timestamp;
     @Unindexed private String impressionTime;
     @Id private String compositeKey;
 
-    private ViewEntity(Long _id, Long _uid, Long _docNum) {
+    private ViewEntity(Long _uid, Long _docNum) {
         DateTime dtNow = DateTime.now();
-        this.id = _id;
         this.uid = _uid;
         this.docNum = _docNum;
         this.timestamp = dtNow.getMillis();
         this.impressionTime = dtNow.toString("YYYY-MM-dd HH:mm:ss");
         this.compositeKey = _uid + UserViewBean.COMPOSITE_KEY_SEPARATOR + _docNum;
-    }
-
-    private ViewEntity(Long _uid, Long _docNum) {
-        this(0l, _uid, _docNum);
     }
 
     private ViewEntity(Long _uid, Long _docNum, String _timestamp) {
@@ -52,14 +45,6 @@ public class ViewEntity {
                 userViewBean.getDocNum(),
                 userViewBean.getUpdateTS().toString("YYYY-MM-dd HH:mm:ss")
         );
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public Long getUid() {
@@ -105,8 +90,7 @@ public class ViewEntity {
     @Override
     public String toString() {
         return "ViewEntity{" +
-                "id=" + id +
-                ", uid=" + uid +
+                "uid=" + uid +
                 ", docNum=" + docNum +
                 ", impressionTime='" + impressionTime + '\'' +
                 '}';
