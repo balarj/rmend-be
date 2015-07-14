@@ -10,21 +10,24 @@ import javax.persistence.*;
  * @author <bxr4261>
  */
 @Entity
-@Table(name = "USER_VIEWS")
+@Table(name = "IMPRESSIONS")
 public class ViewEntity {
 
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Unindexed private Long id;
     private Long uid;
     private Long docNum;
-    @Unindexed private String timestamp;
+    @Unindexed private long timestamp;
+    @Unindexed private String impressionTime;
     @Id private String compositeKey;
 
     private ViewEntity(Long _id, Long _uid, Long _docNum) {
+        DateTime dtNow = DateTime.now();
         this.id = _id;
         this.uid = _uid;
         this.docNum = _docNum;
-        this.timestamp = DateTime.now().toString("YYYY-MM-dd HH:mm:ss");
+        this.timestamp = dtNow.getMillis();
+        this.impressionTime = dtNow.toString("YYYY-MM-dd HH:mm:ss");
         this.compositeKey = _uid + UserViewBean.COMPOSITE_KEY_SEPARATOR + _docNum;
     }
 
@@ -33,9 +36,11 @@ public class ViewEntity {
     }
 
     private ViewEntity(Long _uid, Long _docNum, String _timestamp) {
+        DateTime dtNow = DateTime.now();
         this.uid = _uid;
         this.docNum = _docNum;
-        this.timestamp = _timestamp;
+        this.timestamp = dtNow.getMillis();
+        this.impressionTime = dtNow.toString("YYYY-MM-dd HH:mm:ss");
         this.compositeKey = _uid + UserViewBean.COMPOSITE_KEY_SEPARATOR + _docNum;
     }
 
@@ -73,12 +78,20 @@ public class ViewEntity {
         this.docNum = docNum;
     }
 
-    public String getTimestamp() {
+    public Long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(String timestamp) {
+    public void setTimestamp(Long timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public String getImpressionTime() {
+        return impressionTime;
+    }
+
+    public void setImpressionTime(String impressionTime) {
+        this.impressionTime = impressionTime;
     }
 
     public String getCompositeKey() {
@@ -95,7 +108,7 @@ public class ViewEntity {
                 "id=" + id +
                 ", uid=" + uid +
                 ", docNum=" + docNum +
-                ", timestamp='" + timestamp + '\'' +
+                ", impressionTime='" + impressionTime + '\'' +
                 '}';
     }
 }
