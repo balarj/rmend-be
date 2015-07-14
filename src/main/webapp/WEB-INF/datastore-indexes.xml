@@ -12,4 +12,8 @@
         <property name="entityId" direction="asc" />
         <property name="score" direction="desc" />
     </datastore-index>
+    <datastore-index kind="USER_IMPRESSIONS" ancestor="false">
+        <property name="uid" direction="asc" />
+        <property name="docNum" direction="asc" />
+    </datastore-index>
 </datastore-indexes>
