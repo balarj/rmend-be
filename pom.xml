@@ -11,7 +11,7 @@
     <properties>
         <app.id>rmend-be</app.id>
         <app.version>1</app.version>
-        <appengine.version>1.9.21</appengine.version>
+        <appengine.version>1.9.0</appengine.version>
         <gcloud.plugin.version>0.9.58.v20150505</gcloud.plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jersey.version>2.11</jersey.version>
@@ -231,6 +231,12 @@
                 <configuration>
                     <enableJarClasses>false</enableJarClasses>
                     <version>${app.version}</version>
+                    <appId>${app.id}</appId>
+                    <jvmFlags>
+                        <jvmFlag>-Xdebug</jvmFlag>
+                        <jvmFlag>-agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n</jvmFlag>
+                        <jvmFlag>-Ddatastore.backing_store=/Users/brajagopal/opt/gcloud/data-dir/rmend-be/WEB-INF/appengine-generated/local_db.bin</jvmFlag>
+                    </jvmFlags>
                 </configuration>
             </plugin>
 
@@ -239,7 +245,7 @@
               <artifactId>gcloud-maven-plugin</artifactId>
               <version>${gcloud.plugin.version}</version>
               <configuration>
-                <set_default>true</set_default>
+                  <set_default>true</set_default>
               </configuration>
             </plugin>
 
