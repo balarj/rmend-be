@@ -1,5 +1,6 @@
 package com.brajagopal.rmend.be.service.resources;
 
+import com.brajagopal.rmend.be.recommender.ContentRecommender;
 import com.brajagopal.rmend.data.ResultsType;
 import com.brajagopal.rmend.data.beans.DocumentBean;
 import com.brajagopal.rmend.exception.DocumentNotFoundException;
@@ -41,7 +42,9 @@ public class DocumentResource extends BaseResource {
         String errorMsg = "NA";
         Collection<DocumentBean> retVal = new ArrayList<>();
         try {
-            retVal = getRecommender().getContentByTopic(getRecommender().makeTopicBean(topic), ResultsType.DEFAULT_RESULT_TYPE);
+            ContentRecommender recommender =
+                    (ContentRecommender) getRecommender(RecommenderTypeEnum.CONTENT_BASED);
+            retVal = recommender.getContentByTopic(recommender.makeTopicBean(topic), ResultsType.DEFAULT_RESULT_TYPE);
             if (retVal.isEmpty()) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }

@@ -5,6 +5,7 @@ import com.brajagopal.rmend.data.beans.DocumentBean;
 import com.brajagopal.rmend.exception.DocumentNotFoundException;
 import com.google.api.services.datastore.client.DatastoreException;
 import org.apache.log4j.Logger;
+import org.apache.mahout.cf.taste.common.TasteException;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -40,7 +41,10 @@ public class ContentRecommenderResource extends BaseResource {
 
         String errorMsg = "NA";
         try {
-            Collection<DocumentBean> retVal = getRecommender().getRecommendation(docNumber, resultsType);
+            Collection<DocumentBean> retVal =
+                    getRecommender(RecommenderTypeEnum.CONTENT_BASED)
+                            .getRecommendation(docNumber, resultsType);
+
             if (retVal.isEmpty()) {
                 return Response.status(
                         Response.Status.NOT_FOUND)
@@ -64,6 +68,9 @@ public class ContentRecommenderResource extends BaseResource {
             logger.warn(e);
         } catch (DocumentNotFoundException e) {
             responseStatus = Response.Status.NOT_FOUND;
+            errorMsg = e.getMessage();
+            logger.warn(e);
+        } catch (TasteException e) {
             errorMsg = e.getMessage();
             logger.warn(e);
         }
