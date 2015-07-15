@@ -6,7 +6,7 @@
     <system-properties>
         <property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
     </system-properties>
-    <env-variables>
+    <!--<env-variables>
         <env-var name="DATASTORE_DATASET" value="rmend-be" />
-    </env-variables>
+    </env-variables>-->
 </appengine-web-app>
