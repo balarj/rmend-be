@@ -248,7 +248,8 @@ public final class GoogleDatastoreDataModel implements DataModel, Closeable {
     }
 
     @Override
-    public int getNumItems() throws TasteException Integer itemCount = itemCountCache.get();
+    public int getNumItems() throws TasteException {
+        Integer itemCount = itemCountCache.get();
         logger.info(itemCount);
         if (itemCount == null) {
             try {
