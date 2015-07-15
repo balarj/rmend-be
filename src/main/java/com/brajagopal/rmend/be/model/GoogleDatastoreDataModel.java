@@ -6,6 +6,7 @@ import com.google.api.services.datastore.client.Datastore;
 import com.google.api.services.datastore.client.DatastoreException;
 import com.google.api.services.datastore.client.DatastoreFactory;
 import com.google.api.services.datastore.client.DatastoreHelper;
+import org.apache.log4j.Logger;
 import org.apache.mahout.cf.taste.common.NoSuchItemException;
 import org.apache.mahout.cf.taste.common.NoSuchUserException;
 import org.apache.mahout.cf.taste.common.Refreshable;
@@ -30,6 +31,8 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author <bxr4261>
  */
 public final class GoogleDatastoreDataModel implements DataModel, Closeable {
+
+    private static final Logger logger = Logger.getLogger(GoogleDatastoreDataModel.class);
 
     private final Datastore datastore;
     private static final String DEFAULT_DATASET = "recommend";
@@ -58,8 +61,12 @@ public final class GoogleDatastoreDataModel implements DataModel, Closeable {
      * @throws IOException
      */
     public GoogleDatastoreDataModel() throws GeneralSecurityException, IOException {
-        datastore = DatastoreFactory.get().create(
-                DatastoreHelper.getOptionsFromEnv().dataset(DEFAULT_DATASET).build());
+        String defaultDataSet = System.getProperties().getProperty("com.google.appengine.application.id");
+        datastore = DatastoreFactory.get()
+                .create(DatastoreHelper.getOptionsFromEnv()
+                                .dataset(defaultDataSet)
+                                .build()
+                );
 
         userCache = new Cache<>(new UserPrefArrayRetriever(), 1 << 20);
         itemCache = new Cache<>(new ItemPrefArrayRetriever(), 1 << 20);
@@ -80,8 +87,14 @@ public final class GoogleDatastoreDataModel implements DataModel, Closeable {
      * @throws IOException
      */
     public GoogleDatastoreDataModel(GoogleCredential credential) throws GeneralSecurityException, IOException {
-        datastore = DatastoreFactory.get().create(
-                DatastoreHelper.getOptionsFromEnv().credential(credential).build());
+
+        String defaultDataSet = System.getProperties().getProperty("com.google.appengine.application.id");
+        datastore = DatastoreFactory.get()
+                .create(DatastoreHelper.getOptionsFromEnv()
+                                .dataset(defaultDataSet)
+                                .credential(credential)
+                                .build()
+                );
 
         userCache = new Cache<>(new UserPrefArrayRetriever(), 1 << 20);
         itemCache = new Cache<>(new ItemPrefArrayRetriever(), 1 << 20);
@@ -94,13 +107,13 @@ public final class GoogleDatastoreDataModel implements DataModel, Closeable {
     /**
      *
      * @param credential
-     * @param dataSet
+     * @param dataset
      * @throws GeneralSecurityException
      * @throws IOException
      */
-    public GoogleDatastoreDataModel(GoogleCredential credential, String dataSet) throws GeneralSecurityException, IOException {
+    public GoogleDatastoreDataModel(GoogleCredential credential, String dataset) throws GeneralSecurityException, IOException {
         datastore = DatastoreFactory.get().create(
-                DatastoreHelper.getOptionsFromEnv().credential(credential).dataset(dataSet).build());
+                DatastoreHelper.getOptionsFromEnv().credential(credential).dataset(dataset).build());
 
         userCache = new Cache<>(new UserPrefArrayRetriever(), 1 << 20);
         itemCache = new Cache<>(new ItemPrefArrayRetriever(), 1 << 20);
@@ -127,9 +140,11 @@ public final class GoogleDatastoreDataModel implements DataModel, Closeable {
         FastIDSet userIDs = new FastIDSet();
         try {
             Query.Builder query = Query.newBuilder();
-            query.addKindBuilder().setName(DEFAULT_IMPRESSIONS_KIND_NAME);
-            List<Entity> results = runQuery(query.build());
+            query.addKindBuilder().setName(DEFAULT_IMPRESSIONS_USER_KIND_NAME);
+            List<Entity> results = runQuery(query.build(), "getUserIDs");
+            logger.info(results.size());
             for (Entity entity : results) {
+                logger.info(DatastoreHelper.getPropertyMap(entity));
                 userIDs.add(
                         DatastoreHelper.getLong(
                                 DatastoreHelper.getPropertyMap(entity).get(USER_ID_COLUMN)
@@ -159,7 +174,7 @@ public final class GoogleDatastoreDataModel implements DataModel, Closeable {
             Query.Builder query = Query.newBuilder();
             query.setLimit(Integer.MAX_VALUE);
             query.addKindBuilder().setName(DEFAULT_IMPRESSIONS_KIND_NAME);
-            List<Entity> results = runQuery(query.build());
+            List<Entity> results = runQuery(query.build(), "getItemIDs()");
             for (Entity entity : results) {
                 itemIDs.add(
                         DatastoreHelper.getLong(
@@ -195,7 +210,7 @@ public final class GoogleDatastoreDataModel implements DataModel, Closeable {
                     PropertyFilter.Operator.EQUAL,
                     DatastoreHelper.makeValue(userID)
             ));
-            List<Entity> results = runQuery(query.build());
+            List<Entity> results = runQuery(query.build(), "getPreferenceValue()");
             if(results.isEmpty()) {
                 return null;
             }
@@ -222,7 +237,7 @@ public final class GoogleDatastoreDataModel implements DataModel, Closeable {
                     PropertyFilter.Operator.EQUAL,
                     DatastoreHelper.makeValue(userID)
             ));
-            List<Entity> results = runQuery(query.build());
+            List<Entity> results = runQuery(query.build(), "getPreferenceTime()");
             if(results.isEmpty()) {
                 return null;
             }
@@ -233,29 +248,43 @@ public final class GoogleDatastoreDataModel implements DataModel, Closeable {
     }
 
     @Override
-    public int getNumItems() throws TasteException {
-        try {
-            Query.Builder query = Query.newBuilder();
-            query.setLimit(Integer.MAX_VALUE);
-            query.addKindBuilder().setName(DEFAULT_IMPRESSIONS_ITEMS_KIND_NAME);
-            List<Entity> results = runQuery(query.build());
-            return results.size();
-        } catch (DatastoreException e) {
-            throw new TasteException(e);
+    public int getNumItems() throws TasteException Integer itemCount = itemCountCache.get();
+        logger.info(itemCount);
+        if (itemCount == null) {
+            try {
+                Query.Builder query = Query.newBuilder();
+                query.addKindBuilder().setName(DEFAULT_IMPRESSIONS_ITEMS_KIND_NAME);
+                query.addProjection(PropertyExpression.newBuilder().setProperty(
+                        PropertyReference.newBuilder().setName("__key__")));
+                List<Key> results = runProjectionQuery(query.build(), "getNumItems()");
+                itemCount = results.size();
+                itemCountCache.set(itemCount);
+            } catch (DatastoreException e) {
+                e.printStackTrace();
+                throw new TasteException(e);
+            }
         }
+        logger.info("itemCount: "+itemCount);
+        return itemCount;
     }
 
     @Override
     public int getNumUsers() throws TasteException {
-        try {
-            Query.Builder query = Query.newBuilder();
-            query.setLimit(Integer.MAX_VALUE);
-            query.addKindBuilder().setName(DEFAULT_IMPRESSIONS_USER_KIND_NAME);
-            List<Entity> results = runQuery(query.build());
-            return results.size();
-        } catch (DatastoreException e) {
-            throw new TasteException(e);
+        Integer userCount = userCountCache.get();
+        if (userCount == null) {
+            try {
+                Query.Builder query = Query.newBuilder();
+                query.setLimit(Integer.MAX_VALUE);
+                query.addKindBuilder().setName(DEFAULT_IMPRESSIONS_USER_KIND_NAME);
+                List<Entity> results = runQuery(query.build(), "getNumUsers()");
+                userCount = results.size();
+                userCountCache.set(userCount);
+            } catch (DatastoreException e) {
+                throw new TasteException(e);
+            }
         }
+        logger.info("userCount: "+userCount);
+        return userCount;
     }
 
     @Override
@@ -307,9 +336,10 @@ public final class GoogleDatastoreDataModel implements DataModel, Closeable {
         itemCountCache.set(null);
     }
 
-    private List<Entity> runQuery(Query query) throws DatastoreException {
+    private List<Entity> runQuery(Query query, String _callingMethod) throws DatastoreException {
         RunQueryRequest.Builder request = RunQueryRequest.newBuilder();
         request.setQuery(query);
+        logger.info(_callingMethod + " : " + query);
         RunQueryResponse response = datastore.runQuery(request.build());
 
         if (response.getBatch().getMoreResults() == QueryResultBatch.MoreResultsType.NOT_FINISHED) {
@@ -319,6 +349,26 @@ public final class GoogleDatastoreDataModel implements DataModel, Closeable {
         List<Entity> entities = new ArrayList<>(results.size());
         for (EntityResult result : results) {
             entities.add(result.getEntity());
+        }
+        return entities;
+    }
+
+    private List<Key> runProjectionQuery(Query query, String _callingMethod) throws DatastoreException {
+        RunQueryRequest.Builder request = RunQueryRequest.newBuilder();
+        request.setQuery(query);
+        logger.info(_callingMethod+" : "+query);
+        RunQueryResponse response = datastore.runQuery(request.build());
+
+        // TODO:
+        // If you see this message; it means that you will have
+        // to set the limit to INTEGER.MAX in the calling method.
+        if (response.getBatch().getMoreResults() == QueryResultBatch.MoreResultsType.NOT_FINISHED) {
+            System.err.println("WARNING: partial results\n");
+        }
+        List<EntityResult> results = response.getBatch().getEntityResultList();
+        List<Key> entities = new ArrayList<>(results.size());
+        for (EntityResult result : results) {
+            entities.add(result.getEntity().getKey());
         }
         return entities;
     }
@@ -438,7 +488,7 @@ public final class GoogleDatastoreDataModel implements DataModel, Closeable {
                 PropertyFilter.Operator.EQUAL,
                 DatastoreHelper.makeValue(userID)
         ));
-        return runQuery(query.build());
+        return runQuery(query.build(), "getItemsForUser()");
     }
 
     private final List<Entity> getUsersForItem(Long itemID) throws DatastoreException {
@@ -451,6 +501,6 @@ public final class GoogleDatastoreDataModel implements DataModel, Closeable {
                 PropertyFilter.Operator.EQUAL,
                 DatastoreHelper.makeValue(itemID)
         ));
-        return runQuery(query.build());
+        return runQuery(query.build(), "getUsersForItem()");
     }
 }
