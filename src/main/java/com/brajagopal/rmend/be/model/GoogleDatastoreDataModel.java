@@ -141,15 +141,9 @@ public final class GoogleDatastoreDataModel implements DataModel, Closeable {
         try {
             Query.Builder query = Query.newBuilder();
             query.addKindBuilder().setName(DEFAULT_IMPRESSIONS_USER_KIND_NAME);
-            List<Entity> results = runQuery(query.build(), "getUserIDs");
-            logger.info(results.size());
-            for (Entity entity : results) {
-                logger.info(DatastoreHelper.getPropertyMap(entity));
-                userIDs.add(
-                        DatastoreHelper.getLong(
-                                DatastoreHelper.getPropertyMap(entity).get(USER_ID_COLUMN)
-                        )
-                );
+            List<Key> results = runProjectionQuery(query.build(), "getUserIDs");
+            for (Key key : results) {
+                userIDs.add(key.getPathElement(0).getId());
             }
         } catch (DatastoreException e) {
             throw new TasteException(e);
@@ -173,14 +167,10 @@ public final class GoogleDatastoreDataModel implements DataModel, Closeable {
         try {
             Query.Builder query = Query.newBuilder();
             query.setLimit(Integer.MAX_VALUE);
-            query.addKindBuilder().setName(DEFAULT_IMPRESSIONS_KIND_NAME);
-            List<Entity> results = runQuery(query.build(), "getItemIDs()");
-            for (Entity entity : results) {
-                itemIDs.add(
-                        DatastoreHelper.getLong(
-                                DatastoreHelper.getPropertyMap(entity).get(ITEM_ID_COLUMN)
-                        )
-                );
+            query.addKindBuilder().setName(DEFAULT_IMPRESSIONS_ITEMS_KIND_NAME);
+            List<Key> results = runProjectionQuery(query.build(), "getItemIDs()");
+            for (Key key : results) {
+                itemIDs.add(key.getPathElement(0).getId());
             }
         } catch (DatastoreException e) {
             throw new TasteException(e);
@@ -250,7 +240,6 @@ public final class GoogleDatastoreDataModel implements DataModel, Closeable {
     @Override
     public int getNumItems() throws TasteException {
         Integer itemCount = itemCountCache.get();
-        logger.info(itemCount);
         if (itemCount == null) {
             try {
                 Query.Builder query = Query.newBuilder();
@@ -265,7 +254,6 @@ public final class GoogleDatastoreDataModel implements DataModel, Closeable {
                 throw new TasteException(e);
             }
         }
-        logger.info("itemCount: "+itemCount);
         return itemCount;
     }
 
@@ -284,7 +272,6 @@ public final class GoogleDatastoreDataModel implements DataModel, Closeable {
                 throw new TasteException(e);
             }
         }
-        logger.info("userCount: "+userCount);
         return userCount;
     }
 
@@ -340,7 +327,7 @@ public final class GoogleDatastoreDataModel implements DataModel, Closeable {
     private List<Entity> runQuery(Query query, String _callingMethod) throws DatastoreException {
         RunQueryRequest.Builder request = RunQueryRequest.newBuilder();
         request.setQuery(query);
-        logger.info(_callingMethod + " : " + query);
+        logger.debug(_callingMethod + " : " + query);
         RunQueryResponse response = datastore.runQuery(request.build());
 
         if (response.getBatch().getMoreResults() == QueryResultBatch.MoreResultsType.NOT_FINISHED) {
@@ -357,7 +344,7 @@ public final class GoogleDatastoreDataModel implements DataModel, Closeable {
     private List<Key> runProjectionQuery(Query query, String _callingMethod) throws DatastoreException {
         RunQueryRequest.Builder request = RunQueryRequest.newBuilder();
         request.setQuery(query);
-        logger.info(_callingMethod+" : "+query);
+        logger.debug(_callingMethod+" : "+query);
         RunQueryResponse response = datastore.runQuery(request.build());
 
         // TODO:
