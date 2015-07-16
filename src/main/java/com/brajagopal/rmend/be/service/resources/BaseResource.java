@@ -75,7 +75,7 @@ public abstract class BaseResource {
         else if (recommenderType == RecommenderTypeEnum.COLLABORATIVE_FILTERING){
             if (cfRecommender == null) {
                 logger.info("Generating a new CFRecommender instance");
-                cfRecommender = new CFRecommender(getCredentials());
+                cfRecommender = new CFRecommender(getDao(), getCredentials());
             }
             return cfRecommender;
         }
