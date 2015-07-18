@@ -1,5 +1,6 @@
 package com.brajagopal.rmend.be.recommender;
 
+import com.brajagopal.rmend.be.beans.RecResponseBean;
 import com.brajagopal.rmend.be.model.GoogleDatastoreDataModel;
 import com.brajagopal.rmend.dao.IRMendDao;
 import com.brajagopal.rmend.data.ResultsType;
@@ -12,7 +13,6 @@ import org.apache.log4j.Logger;
 import org.apache.mahout.cf.taste.common.TasteException;
 import org.apache.mahout.cf.taste.eval.RecommenderBuilder;
 import org.apache.mahout.cf.taste.impl.recommender.GenericBooleanPrefItemBasedRecommender;
-import org.apache.mahout.cf.taste.impl.similarity.LogLikelihoodSimilarity;
 import org.apache.mahout.cf.taste.impl.similarity.TanimotoCoefficientSimilarity;
 import org.apache.mahout.cf.taste.model.DataModel;
 import org.apache.mahout.cf.taste.recommender.RecommendedItem;
@@ -40,26 +40,12 @@ public class CFRecommender implements IRecommender {
     }
 
     @Override
-    public Collection<DocumentBean> getRecommendation(long _documentNumber, ResultsType _resultsType)
+    public RecResponseBean getRecommendation(long _documentNumber, ResultsType _resultsType)
             throws DatastoreException, DocumentNotFoundException, TasteException {
 
         //RecommenderIRStatsEvaluator evaluator = new GenericRecommenderIRStatsEvaluator();
         RecommenderBuilderWrapper builder =
                 new RecommenderBuilderWrapper(new TanimotoCoefficientSimilarity(dataModel));
-
-        /*IRStatistics stats = evaluator.evaluate(
-                builder,
-                null,
-                dataModel,
-                null,
-                5,
-                GenericRecommenderIRStatsEvaluator.CHOOSE_THRESHOLD,
-                1
-        );*/
-
-        logger.debug("Using '" +
-                builder.getSimilarityClass().getSimpleName() +
-                "' for computing ItemSimilarity");
 
         List<RecommendedItem> recommendations =
                 builder.buildRecommender(dataModel).recommend(
@@ -75,7 +61,10 @@ public class CFRecommender implements IRecommender {
             }
         }
 
-        return results;
+        RecResponseBean response = new RecResponseBean(
+                results, builder.getSimilarityClass().getSimpleName());
+
+        return response;
     }
 
     @Override
@@ -93,7 +82,7 @@ public class CFRecommender implements IRecommender {
 
         @Override
         public Recommender buildRecommender(DataModel dataModel) throws TasteException {
-            similarity = new LogLikelihoodSimilarity(dataModel);
+            //similarity = new LogLikelihoodSimilarity(dataModel);
             return new GenericBooleanPrefItemBasedRecommender(dataModel, similarity);
         }
 

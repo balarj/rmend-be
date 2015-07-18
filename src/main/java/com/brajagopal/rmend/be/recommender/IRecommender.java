@@ -1,5 +1,6 @@
 package com.brajagopal.rmend.be.recommender;
 
+import com.brajagopal.rmend.be.beans.RecResponseBean;
 import com.brajagopal.rmend.data.ResultsType;
 import com.brajagopal.rmend.data.beans.DocumentBean;
 import com.brajagopal.rmend.data.beans.TopicBean;
@@ -14,7 +15,7 @@ import java.util.Collection;
  */
 public interface IRecommender {
 
-    public Collection<DocumentBean> getRecommendation(
+    public RecResponseBean getRecommendation(
             final long _documentNumber,
             ResultsType _resultsType) throws DatastoreException, DocumentNotFoundException, TasteException;
 

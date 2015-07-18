@@ -1,5 +1,6 @@
 package com.brajagopal.rmend.be.recommender;
 
+import com.brajagopal.rmend.be.beans.RecResponseBean;
 import com.brajagopal.rmend.dao.IRMendDao;
 import com.brajagopal.rmend.data.ContentDictionary;
 import com.brajagopal.rmend.data.ResultsType;
@@ -55,7 +56,7 @@ public class ContentRecommender implements IRecommender {
      * @throws com.google.api.services.datastore.client.DatastoreException
      */
     @Override
-    public Collection<DocumentBean> getRecommendation(
+    public RecResponseBean getRecommendation(
             final long _documentNumber,
             ResultsType _resultsType) throws DatastoreException, DocumentNotFoundException {
 
@@ -91,7 +92,7 @@ public class ContentRecommender implements IRecommender {
             recommendedResults.add(dao.getDocument(docMeta.getDocumentNumber()));
         }
 
-        return recommendedResults;
+        return new RecResponseBean(recommendedResults, "ContentBased");
     }
 
 
