@@ -88,7 +88,6 @@ public abstract class BaseResource {
         HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
         JacksonFactory jsonFactory = new JacksonFactory();
         File fCredPk = new File("conf/rmend-be.p12");
-        logger.info(fCredPk.getAbsolutePath());
 
         GoogleCredential credential = new GoogleCredential.Builder().setTransport(httpTransport)
                 .setJsonFactory(jsonFactory)
