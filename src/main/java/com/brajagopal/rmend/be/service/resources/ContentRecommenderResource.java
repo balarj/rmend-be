@@ -1,7 +1,7 @@
 package com.brajagopal.rmend.be.service.resources;
 
+import com.brajagopal.rmend.be.beans.RecResponseBean;
 import com.brajagopal.rmend.data.ResultsType;
-import com.brajagopal.rmend.data.beans.DocumentBean;
 import com.brajagopal.rmend.exception.DocumentNotFoundException;
 import com.google.api.services.datastore.client.DatastoreException;
 import org.apache.log4j.Logger;
@@ -15,7 +15,6 @@ import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InvalidClassException;
 import java.security.GeneralSecurityException;
-import java.util.Collection;
 
 /**
  * @author <bxr4261>
@@ -30,7 +29,7 @@ public class ContentRecommenderResource extends BaseResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/document/{docNumber}")
+    @Path("/{docNumber}")
     public Response getRecommendation(@PathParam("docNumber") long docNumber, @DefaultValue("RANDOM_10") @QueryParam("resultType") String resultsTypeAsString) {
         Response.Status responseStatus = Response.Status.INTERNAL_SERVER_ERROR;
 
@@ -41,19 +40,21 @@ public class ContentRecommenderResource extends BaseResource {
 
         String errorMsg = "NA";
         try {
-            Collection<DocumentBean> retVal =
+            RecResponseBean responseBean =
                     getRecommender(RecommenderTypeEnum.CONTENT_BASED)
                             .getRecommendation(docNumber, resultsType);
 
-            if (retVal.isEmpty()) {
+            if (responseBean.isEmpty()) {
                 return Response.status(
                         Response.Status.NOT_FOUND)
                         .header("X-Result-Type", resultsType)
                         .build();
             }
             return Response.ok()
-                    .entity(retVal)
+                    .entity(responseBean.getResults())
                     .header("X-Result-Type", resultsType)
+                    .header("X-Recommendation-Type", responseBean.getSimilarityType())
+                    .header("X-Response-Count", responseBean.size())
                     .build();
         } catch (DatastoreException e) {
             logger.warn(e);
