@@ -18,6 +18,7 @@ public class ViewEntity {
     @Unindexed private long timestamp;
     @Unindexed private String impressionTime;
     @Id private String compositeKey;
+    @Unindexed private String recommendationType;
 
     private ViewEntity(Long _uid, Long _docNum) {
         DateTime dtNow = DateTime.now();
@@ -28,13 +29,14 @@ public class ViewEntity {
         this.compositeKey = _uid + UserViewBean.COMPOSITE_KEY_SEPARATOR + _docNum;
     }
 
-    private ViewEntity(Long _uid, Long _docNum, String _timestamp) {
+    private ViewEntity(Long _uid, Long _docNum, String _recType) {
         DateTime dtNow = DateTime.now();
         this.uid = _uid;
         this.docNum = _docNum;
         this.timestamp = dtNow.getMillis();
         this.impressionTime = dtNow.toString("YYYY-MM-dd HH:mm:ss");
         this.compositeKey = _uid + UserViewBean.COMPOSITE_KEY_SEPARATOR + _docNum;
+        this.recommendationType = _recType;
     }
 
     public ViewEntity() {}
@@ -43,7 +45,7 @@ public class ViewEntity {
         return new ViewEntity(
                 userViewBean.getUid(),
                 userViewBean.getDocNum(),
-                userViewBean.getUpdateTS().toString("YYYY-MM-dd HH:mm:ss")
+                userViewBean.getRecType()
         );
     }
 
@@ -87,12 +89,21 @@ public class ViewEntity {
         this.compositeKey = compositeKey;
     }
 
+    public String getRecommendationType() {
+        return recommendationType;
+    }
+
+    public void setRecommendationType(String recommendationType) {
+        this.recommendationType = recommendationType;
+    }
+
     @Override
     public String toString() {
         return "ViewEntity{" +
                 "uid=" + uid +
                 ", docNum=" + docNum +
                 ", impressionTime='" + impressionTime + '\'' +
+                ", recommendationType='" + recommendationType + '\'' +
                 '}';
     }
 }
