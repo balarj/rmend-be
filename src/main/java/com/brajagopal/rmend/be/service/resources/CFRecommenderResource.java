@@ -28,8 +28,8 @@ public class CFRecommenderResource extends BaseResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/{userId}")
-    public Response getRecommendation(
+    @Path("/user/{userId}")
+    public Response getUserRecommendation(
             @PathParam("userId") long userId,
             @DefaultValue("RANDOM_10") @QueryParam("resultType") String resultsTypeAsString) {
 
@@ -45,6 +45,59 @@ public class CFRecommenderResource extends BaseResource {
             RecResponseBean responseBean =
                     getRecommender(RecommenderTypeEnum.COLLABORATIVE_FILTERING)
                             .getRecommendation(userId, ResultsType.RANDOM_10);
+
+            if (responseBean.isEmpty()) {
+                return Response.status(
+                        Response.Status.NOT_FOUND)
+                        .header("X-Result-Type", resultsType)
+                        .build();
+            }
+            return Response.ok()
+                    .entity(responseBean.getResults())
+                    .header("X-Result-Type", resultsType)
+                    .header("X-Recommendation-Type", responseBean.getSimilarityType())
+                    .header("X-Response-Count", responseBean.size())
+                    .build();
+        } catch (DatastoreException e) {
+            logger.warn(e);
+        } catch (DocumentNotFoundException e) {
+            logger.warn(e);
+        } catch (GeneralSecurityException e) {
+            errorMsg = e.getMessage();
+            logger.warn(e);
+        } catch (IOException e) {
+            errorMsg = e.getMessage();
+            logger.warn(e);
+        } catch (TasteException e) {
+            e.printStackTrace();
+        }
+
+
+        return Response.status(responseStatus)
+                .header("X-Error-Msg", errorMsg)
+                .header("X-Result-Type", resultsType)
+                .build();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("/document/{docId}")
+    public Response getItemRecommendation(
+            @PathParam("docId") long docId,
+            @DefaultValue("RANDOM_10") @QueryParam("resultType") String resultsTypeAsString) {
+
+        Response.Status responseStatus = Response.Status.INTERNAL_SERVER_ERROR;
+        ResultsType resultsType = ResultsType.DEFAULT_RESULT_TYPE;
+        try {
+            resultsType = ResultsType.valueOf(resultsTypeAsString);
+        } catch (IllegalArgumentException e) {}
+
+        String errorMsg = "NA";
+
+        try {
+            RecResponseBean responseBean =
+                    getRecommender(RecommenderTypeEnum.COLLABORATIVE_FILTERING)
+                            .getItemSimilarity(docId, ResultsType.RANDOM_10);
 
             if (responseBean.isEmpty()) {
                 return Response.status(
