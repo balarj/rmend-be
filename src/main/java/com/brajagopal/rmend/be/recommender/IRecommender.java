@@ -16,6 +16,10 @@ import java.util.Collection;
 public interface IRecommender {
 
     public RecResponseBean getRecommendation(
+            final long _userId,
+            ResultsType _resultsType) throws DatastoreException, DocumentNotFoundException, TasteException;
+
+    public RecResponseBean getItemSimilarity(
             final long _documentNumber,
             ResultsType _resultsType) throws DatastoreException, DocumentNotFoundException, TasteException;
 
