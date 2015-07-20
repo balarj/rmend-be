@@ -14,6 +14,7 @@ import com.google.common.collect.TreeMultimap;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.log4j.Logger;
+import org.apache.mahout.cf.taste.common.TasteException;
 
 import java.io.InvalidClassException;
 import java.util.*;
@@ -95,6 +96,11 @@ public class ContentRecommender implements IRecommender {
         return new RecResponseBean(recommendedResults, "ContentBased");
     }
 
+    @Override
+    public RecResponseBean getItemSimilarity(long _documentNumber, ResultsType _resultsType) throws DatastoreException, DocumentNotFoundException, TasteException {
+        throw new UnsupportedOperationException(
+                "getItemSimilarity() not supported in ContentRecommender");
+    }
 
 
     public static TopicBean makeTopicBean(String _topic) throws IllegalAccessException, InvalidClassException, InstantiationException {
