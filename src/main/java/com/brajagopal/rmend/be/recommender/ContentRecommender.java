@@ -6,7 +6,6 @@ import com.brajagopal.rmend.data.ContentDictionary;
 import com.brajagopal.rmend.data.ResultsType;
 import com.brajagopal.rmend.data.beans.BaseContent;
 import com.brajagopal.rmend.data.beans.DocumentBean;
-import com.brajagopal.rmend.data.beans.TopicBean;
 import com.brajagopal.rmend.data.meta.DocumentMeta;
 import com.brajagopal.rmend.exception.DocumentNotFoundException;
 import com.google.api.services.datastore.client.DatastoreException;
@@ -16,8 +15,9 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.log4j.Logger;
 import org.apache.mahout.cf.taste.common.TasteException;
 
-import java.io.InvalidClassException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.SortedSet;
 
 /**
  * @author <bxr4261>
@@ -29,23 +29,6 @@ public class ContentRecommender implements IRecommender {
 
     public ContentRecommender(IRMendDao _dao) {
         this.dao = _dao;
-    }
-
-    /**
-     * Method to retrieve Document (content), filtered by topic
-     *
-     * @param _topicBean
-     * @param _resultsType
-     * @return
-     * @throws com.google.api.services.datastore.client.DatastoreException
-     */
-    public Collection<DocumentBean> getContentByTopic(TopicBean _topicBean, ResultsType _resultsType) throws DatastoreException, DocumentNotFoundException {
-        Collection<DocumentBean> docBeans = new ArrayList<DocumentBean>();
-        Collection<DocumentMeta> docMetaCollection = getDocumentMeta(ContentDictionary.makeKeyFromBean(_topicBean), _resultsType);
-        for (DocumentMeta documentMeta : docMetaCollection) {
-            docBeans.add(dao.getDocument(documentMeta.getDocumentNumber()));
-        }
-        return docBeans;
     }
 
     /**
@@ -103,21 +86,5 @@ public class ContentRecommender implements IRecommender {
     }
 
 
-    public static TopicBean makeTopicBean(String _topic) throws IllegalAccessException, InvalidClassException, InstantiationException {
-        Map<String, String> beanValues = new HashMap<String, String>();
-        beanValues.put("contentType", BaseContent.ContentType.TOPICS.toString());
-        beanValues.put("name", _topic);
-        BaseContent retVal = BaseContent.getChildInstance(beanValues);
-        if (retVal != null && retVal instanceof TopicBean) {
-            return (TopicBean) retVal;
-        }
-        else {
-            throw new RuntimeException("Unable to generate a TopicBean for the topic: "+_topic);
-        }
-    }
 
-    protected Collection<DocumentMeta> getDocumentMeta(String _metaIdentifier,  ResultsType resultsType) throws DatastoreException {
-        Collection<DocumentMeta> entityValues = dao.getEntityMeta(_metaIdentifier);
-        return ResultsType.getResults(entityValues, resultsType);
-    }
 }

@@ -5,7 +5,6 @@ import com.brajagopal.rmend.be.model.GoogleDatastoreDataModel;
 import com.brajagopal.rmend.dao.IRMendDao;
 import com.brajagopal.rmend.data.ResultsType;
 import com.brajagopal.rmend.data.beans.DocumentBean;
-import com.brajagopal.rmend.data.beans.TopicBean;
 import com.brajagopal.rmend.exception.DocumentNotFoundException;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.services.datastore.client.DatastoreException;
@@ -100,12 +99,6 @@ public class CFRecommender implements IRecommender {
                 results, builder.getSimilarityClass().getSimpleName());
 
         return response;
-    }
-
-    @Override
-    public Collection<DocumentBean> getContentByTopic(TopicBean _topicBean, ResultsType _resultsType) throws DatastoreException, DocumentNotFoundException {
-        throw new UnsupportedOperationException(
-                "getContentByTopic() not supported in CFRecommender");
     }
 
     static final class SimilarityBuilderWrapper implements RecommenderBuilder {
