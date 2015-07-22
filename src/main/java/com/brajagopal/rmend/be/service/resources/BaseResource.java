@@ -2,6 +2,7 @@ package com.brajagopal.rmend.be.service.resources;
 
 import com.brajagopal.rmend.be.recommender.CFRecommender;
 import com.brajagopal.rmend.be.recommender.ContentRecommender;
+import com.brajagopal.rmend.be.recommender.DocumentManager;
 import com.brajagopal.rmend.be.recommender.IRecommender;
 import com.brajagopal.rmend.dao.GCloudDao;
 import com.brajagopal.rmend.dao.IRMendDao;
@@ -34,6 +35,7 @@ public abstract class BaseResource {
     private static IRMendDao dao;
     private static ContentRecommender contentRecommender;
     private static CFRecommender cfRecommender;
+    private static DocumentManager documentManager;
     private static Map<String, EntityManagerFactory> factory = new HashMap<String, EntityManagerFactory>();
 
     private static final String SERVICE_ACCOUNT_EMAIL =
@@ -59,6 +61,14 @@ public abstract class BaseResource {
             }
         }
         return dao;
+    }
+
+    protected static DocumentManager getDocumentManager() {
+        if (documentManager == null) {
+            logger.info("Generating a new DocumentManager instance");
+            documentManager = new DocumentManager(getDao());
+        }
+        return documentManager;
     }
 
     public IRecommender getRecommender(RecommenderTypeEnum recommenderType) throws GeneralSecurityException, IOException {
