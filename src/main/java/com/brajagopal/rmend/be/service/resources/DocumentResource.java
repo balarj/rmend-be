@@ -1,6 +1,6 @@
 package com.brajagopal.rmend.be.service.resources;
 
-import com.brajagopal.rmend.be.recommender.ContentRecommender;
+import com.brajagopal.rmend.be.recommender.DocumentManager;
 import com.brajagopal.rmend.data.ResultsType;
 import com.brajagopal.rmend.data.beans.DocumentBean;
 import com.brajagopal.rmend.exception.DocumentNotFoundException;
@@ -17,7 +17,6 @@ import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.InvalidClassException;
-import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -42,9 +41,7 @@ public class DocumentResource extends BaseResource {
         String errorMsg = "NA";
         Collection<DocumentBean> retVal = new ArrayList<>();
         try {
-            ContentRecommender recommender =
-                    (ContentRecommender) getRecommender(RecommenderTypeEnum.CONTENT_BASED);
-            retVal = recommender.getContentByTopic(recommender.makeTopicBean(topic), ResultsType.DEFAULT_RESULT_TYPE);
+            retVal = getDocumentManager().getContentByTopic(DocumentManager.makeTopicBean(topic), ResultsType.DEFAULT_RESULT_TYPE);
             if (retVal.isEmpty()) {
                 return Response.status(Response.Status.NOT_FOUND).build();
             }
@@ -58,9 +55,6 @@ public class DocumentResource extends BaseResource {
             errorMsg = e.getMessage();
             logger.warn(e);
         } catch (InstantiationException e) {
-            errorMsg = e.getMessage();
-            logger.warn(e);
-        } catch (GeneralSecurityException e) {
             errorMsg = e.getMessage();
             logger.warn(e);
         } catch (IOException e) {
