@@ -32,7 +32,7 @@ public class ViewResource extends BaseResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/impression")
     public Response putUserView(UserViewBean userViewBean) {
-        Response.ResponseBuilder response = Response.serverError();
+        Response.ResponseBuilder response = Response.status(Response.Status.NOT_IMPLEMENTED);
 
         //TODO: Validate if the uid and docNum are valid
         EntityManager manager = getEntityManager("users-entity", logger);
@@ -46,6 +46,7 @@ public class ViewResource extends BaseResource {
             try {
                 UserBean bean = UserBaseResource.getUserByUUID(userViewBean.getUuid());
                 userViewBean.setUid(bean.getUid());
+                response.header("X-UUID", userViewBean.getUuid());
                 isValid = true;
             } catch (UserNotFoundException e) {
                 if (isValidationStrict()) {
@@ -61,6 +62,7 @@ public class ViewResource extends BaseResource {
             try {
                 UserBean bean = UserBaseResource.getUserByUID(userViewBean.getUid());
                 userViewBean.setUid(bean.getUid());
+                response.header("X-UID", userViewBean.getUid());
             } catch (UserNotFoundException e) {
                 if (isValidationStrict()) {
                     return response
@@ -94,6 +96,7 @@ public class ViewResource extends BaseResource {
             manager.persist(impressionItemsEntity);
             manager.persist(impressionUsersEntity);
             manager.getTransaction().commit();
+            response.header("X-Document-Number", viewEntity.getDocNum());
         }
         /*catch (DuplicateEntryException e) {
             logger.error(e);
