@@ -4,6 +4,8 @@ import com.brajagopal.rmend.be.beans.AutomationBotTraceBean;
 import com.brajagopal.rmend.be.service.resources.BaseResource;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
+import org.apache.commons.cli.BasicParser;
+import org.apache.commons.cli.CommandLineParser;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
 
@@ -12,12 +14,13 @@ import javax.ws.rs.core.Response;
 /**
  * @author <bxr4261>
  */
-public class AutomationBaseBot extends BaseResource {
+public abstract class AutomationBaseBot extends BaseResource {
 
     private Multimap<Response.Status, AutomationBotTraceBean> responseTraceBeans;
+    protected static CommandLineParser cliParser = new BasicParser();
 
-    protected final Long uid;
-    protected final String topic;
+    protected Long uid;
+    protected String topic;
 
     protected AutomationBaseBot(String _userId, String _topic) {
         responseTraceBeans = HashMultimap.create();
