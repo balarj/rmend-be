@@ -6,6 +6,7 @@ import com.google.api.services.datastore.client.Datastore;
 import com.google.api.services.datastore.client.DatastoreException;
 import com.google.api.services.datastore.client.DatastoreFactory;
 import com.google.api.services.datastore.client.DatastoreHelper;
+import com.google.common.base.Strings;
 import org.apache.log4j.Logger;
 import org.apache.mahout.cf.taste.common.NoSuchItemException;
 import org.apache.mahout.cf.taste.common.NoSuchUserException;
@@ -62,6 +63,8 @@ public final class GoogleDatastoreDataModel implements DataModel, Closeable {
      */
     public GoogleDatastoreDataModel() throws GeneralSecurityException, IOException {
         String defaultDataSet = System.getProperties().getProperty("com.google.appengine.application.id");
+        defaultDataSet = Strings.isNullOrEmpty(defaultDataSet) ? System.getenv().get("DATASTORE_DATASET") : defaultDataSet;
+        defaultDataSet = Strings.isNullOrEmpty(defaultDataSet) ? System.getProperties().getProperty("app.id") : defaultDataSet;
         datastore = DatastoreFactory.get()
                 .create(DatastoreHelper.getOptionsFromEnv()
                                 .dataset(defaultDataSet)
@@ -89,6 +92,8 @@ public final class GoogleDatastoreDataModel implements DataModel, Closeable {
     public GoogleDatastoreDataModel(GoogleCredential credential) throws GeneralSecurityException, IOException {
 
         String defaultDataSet = System.getProperties().getProperty("com.google.appengine.application.id");
+        defaultDataSet = Strings.isNullOrEmpty(defaultDataSet) ? System.getenv().get("DATASTORE_DATASET") : defaultDataSet;
+        defaultDataSet = Strings.isNullOrEmpty(defaultDataSet) ? System.getProperties().getProperty("app.id") : defaultDataSet;
         datastore = DatastoreFactory.get()
                 .create(DatastoreHelper.getOptionsFromEnv()
                                 .dataset(defaultDataSet)
