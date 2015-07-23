@@ -5,6 +5,7 @@ import com.brajagopal.rmend.data.ResultsType;
 import com.brajagopal.rmend.exception.DocumentNotFoundException;
 import com.google.api.services.datastore.client.DatastoreException;
 import org.apache.log4j.Logger;
+import org.apache.mahout.cf.taste.common.NoSuchItemException;
 import org.apache.mahout.cf.taste.common.TasteException;
 
 import javax.ws.rs.*;
@@ -121,7 +122,11 @@ public class CFRecommenderResource extends BaseResource {
         } catch (IOException e) {
             errorMsg = e.getMessage();
             logger.warn(e);
+        } catch (NoSuchItemException e) {
+            errorMsg = e.getMessage() + " not found.";
+            logger.warn(e);
         } catch (TasteException e) {
+            errorMsg = e.getMessage();
             e.printStackTrace();
         }
 
