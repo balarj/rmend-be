@@ -18,7 +18,10 @@ public class ViewEntity {
     @Unindexed private long timestamp;
     @Unindexed private String impressionTime;
     @Id private String compositeKey;
-    @Unindexed private String recommendationType;
+    @Unindexed private String referrer;
+
+    @Version @Unindexed
+    private long version;
 
     private ViewEntity(Long _uid, Long _docNum) {
         DateTime dtNow = DateTime.now();
@@ -29,14 +32,14 @@ public class ViewEntity {
         this.compositeKey = _uid + UserViewBean.COMPOSITE_KEY_SEPARATOR + _docNum;
     }
 
-    private ViewEntity(Long _uid, Long _docNum, String _recType) {
+    private ViewEntity(Long _uid, Long _docNum, String _referrer) {
         DateTime dtNow = DateTime.now();
         this.uid = _uid;
         this.docNum = _docNum;
         this.timestamp = dtNow.getMillis();
         this.impressionTime = dtNow.toString("YYYY-MM-dd HH:mm:ss");
         this.compositeKey = _uid + UserViewBean.COMPOSITE_KEY_SEPARATOR + _docNum;
-        this.recommendationType = _recType;
+        this.referrer = _referrer;
     }
 
     public ViewEntity() {}
@@ -45,7 +48,7 @@ public class ViewEntity {
         return new ViewEntity(
                 userViewBean.getUid(),
                 userViewBean.getDocNum(),
-                userViewBean.getRecType()
+                userViewBean.getReferrer()
         );
     }
 
@@ -89,12 +92,12 @@ public class ViewEntity {
         this.compositeKey = compositeKey;
     }
 
-    public String getRecommendationType() {
-        return recommendationType;
+    public String getReferrer() {
+        return referrer;
     }
 
-    public void setRecommendationType(String recommendationType) {
-        this.recommendationType = recommendationType;
+    public void setReferrer(String referrer) {
+        this.referrer = referrer;
     }
 
     @Override
@@ -103,7 +106,7 @@ public class ViewEntity {
                 "uid=" + uid +
                 ", docNum=" + docNum +
                 ", impressionTime='" + impressionTime + '\'' +
-                ", recommendationType='" + recommendationType + '\'' +
+                ", referrer='" + referrer + '\'' +
                 '}';
     }
 }
