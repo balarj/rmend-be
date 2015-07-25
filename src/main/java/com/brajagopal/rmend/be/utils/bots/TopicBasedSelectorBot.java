@@ -29,22 +29,40 @@ public class TopicBasedSelectorBot extends AutomationBaseBot implements IAutomat
 
     private static Logger logger = Logger.getLogger(TopicBasedSelectorBot.class);
     private final RmendRequestAdapter requestAdapter;
+    private ResultsType resultsType;
 
     private static final String ENDPOINT_TEMPLATE = "/v1/view/impression";
 
-
+    @SuppressWarnings("unused")
     protected TopicBasedSelectorBot(String _targetHost, String _userId, String _topic) throws IOReactorException {
+        this(_targetHost, _userId, _topic, ResultsType.RANDOM_10);
+    }
+
+    protected TopicBasedSelectorBot(String _targetHost, String _userId, String _topic, ResultsType _resultsType) throws IOReactorException {
         super(_userId, _topic);
+        this.resultsType = _resultsType;
         requestAdapter = new RmendRequestAdapter(_targetHost, ENDPOINT_TEMPLATE);
     }
 
     public static void main(String[] args) {
         try {
             CommandLine cli = cliParser.parse(getCliOptions(), args);
+            ResultsType resultsType;
+            if (cli.getOptionValue('m') != null) {
+                resultsType = ResultsType.valueOf(cli.getOptionValue('m'));
+                if (resultsType == null) {
+                    resultsType = ResultsType.RANDOM_10;
+                }
+            }
+            else {
+                resultsType = ResultsType.RANDOM_10;
+            }
+
             final IAutomationBot autoBot = new TopicBasedSelectorBot(
                     cli.getOptionValue('h', "http://localhost:8088"),
                     cli.getOptionValue('u'),
-                    cli.getOptionValue('t')
+                    cli.getOptionValue('t'),
+                    resultsType
             );
 
             autoBot.start();
@@ -88,7 +106,7 @@ public class TopicBasedSelectorBot extends AutomationBaseBot implements IAutomat
             throw new NullPointerException("DocumentManager instance is NULL. Aborting...");
         }
 
-        Collection<DocumentBean> documentBeans = documentManager.getContentByTopic(DocumentManager.makeTopicBean(topic), ResultsType.RANDOM_10);
+        Collection<DocumentBean> documentBeans = documentManager.getContentByTopic(DocumentManager.makeTopicBean(topic), resultsType);
         Collection<Long> docNumbers =
                 Collections2.transform(documentBeans, new Function<DocumentBean, Long>() {
 
@@ -123,6 +141,7 @@ public class TopicBasedSelectorBot extends AutomationBaseBot implements IAutomat
         options.addOption("t", "topic", true, "Topic");
         options.addOption("u", "uid", true, "The UID associated with this request");
         options.addOption("h", "target", true, "The target hostname");
+        options.addOption("m", "mode", true, "The ResultType");
 
         return options;
     }
