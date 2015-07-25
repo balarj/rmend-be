@@ -46,6 +46,11 @@ public class DocumentManager {
         return docBeans;
     }
 
+    public Collection<String> getAllAvailableTopics() throws DatastoreException {
+        Collection<String> topics = dao.getAllTopics();
+        return topics;
+    }
+
     public static TopicBean makeTopicBean(String _topic) throws IllegalAccessException, InvalidClassException, InstantiationException {
         Map<String, String> beanValues = new HashMap<String, String>();
         beanValues.put("contentType", BaseContent.ContentType.TOPICS.toString());
