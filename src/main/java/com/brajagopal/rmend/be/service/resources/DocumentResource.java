@@ -70,6 +70,28 @@ public class DocumentResource extends BaseResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
+    @Path("/topic/list")
+    public Response getTopicsList() {
+
+        Response.Status responseStatus = Response.Status.INTERNAL_SERVER_ERROR;
+
+        String errorMsg = "NA";
+        Collection<String> retVal;
+        try {
+            retVal = getDocumentManager().getAllAvailableTopics();
+            if (retVal.isEmpty()) {
+                return Response.status(Response.Status.NOT_FOUND).build();
+            }
+            return Response.ok().entity(retVal).build();
+        } catch (DatastoreException e) {
+            errorMsg = e.getMessage();
+            logger.warn(e);
+        }
+        return Response.status(responseStatus).header("X-Error-Msg", errorMsg).build();
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
     @Path("/{docNumber}")
     public Response getDocumentByNumber(@PathParam("docNumber") long docNumber) {
 
