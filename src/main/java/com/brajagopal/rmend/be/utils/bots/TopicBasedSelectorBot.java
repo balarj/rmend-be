@@ -31,7 +31,7 @@ public class TopicBasedSelectorBot extends AutomationBaseBot implements IAutomat
     private final RmendRequestAdapter requestAdapter;
     private ResultsType resultsType;
 
-    private static final String ENDPOINT_TEMPLATE = "/v1/view/impression";
+    private static final String ENDPOINT_TEMPLATE = "/v1/view/impression?referrer=AUTOBOT";
 
     @SuppressWarnings("unused")
     protected TopicBasedSelectorBot(String _targetHost, String _userId, String _topic) throws IOReactorException {
