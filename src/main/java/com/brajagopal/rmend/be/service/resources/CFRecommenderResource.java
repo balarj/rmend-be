@@ -100,7 +100,7 @@ public class CFRecommenderResource extends BaseResource {
         try {
             RecResponseBean responseBean =
                     getRecommender(RecommenderTypeEnum.COLLABORATIVE_FILTERING)
-                            .getItemSimilarity(docId, ResultsType.RANDOM_10);
+                            .getItemSimilarity(docId, resultsType);
 
             if (responseBean.isEmpty()) {
                 return Response.status(

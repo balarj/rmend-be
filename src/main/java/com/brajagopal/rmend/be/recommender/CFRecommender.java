@@ -100,6 +100,10 @@ public class CFRecommender implements IRecommender {
             }
         }
 
+        // Filter down the result (select randomly from the top results)
+        results = ResultsType.getResultsForCF(results, ResultsType.RANDOM_10);
+        results = ResultsType.getResultsForCF(results, _resultsType);
+
         RecResponseBean response = new RecResponseBean(
                 results, builder.getSimilarityClass().getSimpleName());
 
