@@ -1,9 +1,9 @@
 package com.brajagopal.rmend.be.utils.bots;
 
-import com.brajagopal.rmend.be.recommender.DocumentManager;
 import com.brajagopal.rmend.data.ResultsType;
 import com.brajagopal.rmend.data.beans.DocumentBean;
 import com.brajagopal.rmend.exception.DocumentNotFoundException;
+import com.brajagopal.rmend.utils.DocumentManager;
 import com.brajagopal.rmend.utils.RmendRequestAdapter;
 import com.google.api.services.datastore.client.DatastoreException;
 import com.google.common.base.Function;

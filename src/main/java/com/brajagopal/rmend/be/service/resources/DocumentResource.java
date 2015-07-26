@@ -1,9 +1,9 @@
 package com.brajagopal.rmend.be.service.resources;
 
-import com.brajagopal.rmend.be.recommender.DocumentManager;
 import com.brajagopal.rmend.data.ResultsType;
 import com.brajagopal.rmend.data.beans.DocumentBean;
 import com.brajagopal.rmend.exception.DocumentNotFoundException;
+import com.brajagopal.rmend.utils.DocumentManager;
 import com.google.api.services.datastore.client.DatastoreException;
 import org.apache.log4j.Logger;
 

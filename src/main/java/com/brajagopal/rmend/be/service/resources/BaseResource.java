@@ -2,10 +2,10 @@ package com.brajagopal.rmend.be.service.resources;
 
 import com.brajagopal.rmend.be.recommender.CFRecommender;
 import com.brajagopal.rmend.be.recommender.ContentRecommender;
-import com.brajagopal.rmend.be.recommender.DocumentManager;
 import com.brajagopal.rmend.be.recommender.IRecommender;
-import com.brajagopal.rmend.dao.GCloudDao;
 import com.brajagopal.rmend.dao.IRMendDao;
+import com.brajagopal.rmend.utils.DocumentManager;
+import com.brajagopal.rmend.utils.RMendFactory;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.HttpTransport;
@@ -32,11 +32,10 @@ public abstract class BaseResource {
 
     private final static Logger logger = Logger.getLogger(BaseResource.class);
 
-    private static IRMendDao dao;
+    private static RMendFactory rmendFactory;
     private static ContentRecommender contentRecommender;
     private static CFRecommender cfRecommender;
-    private static DocumentManager documentManager;
-    private static Map<String, EntityManagerFactory> factory = new HashMap<String, EntityManagerFactory>();
+    private static Map<String, EntityManagerFactory> entityFactory = new HashMap<>();
 
     private static final String SERVICE_ACCOUNT_EMAIL =
             "777065455744-gqlc8dar2us2amkcig46lt0fffrarlqc@developer.gserviceaccount.com";
@@ -49,26 +48,11 @@ public abstract class BaseResource {
     }
 
     public static IRMendDao getDao() {
-        if (dao == null) {
-            try {
-                logger.info("Generating a new DAO instance");
-                dao = new GCloudDao(getCredentials());
-            } catch (GeneralSecurityException e) {
-                logger.warn(e);
-            } catch (IOException e) {
-                logger.warn(e);
-                e.printStackTrace();
-            }
-        }
-        return dao;
+        return getRmendFactory().getDao();
     }
 
     protected static DocumentManager getDocumentManager() {
-        if (documentManager == null) {
-            logger.info("Generating a new DocumentManager instance");
-            documentManager = new DocumentManager(getDao());
-        }
-        return documentManager;
+        return getRmendFactory().getDocumentManager();
     }
 
     public IRecommender getRecommender(RecommenderTypeEnum recommenderType) throws GeneralSecurityException, IOException {
@@ -92,8 +76,6 @@ public abstract class BaseResource {
         return null;
     }
 
-
-
     private static GoogleCredential getCredentials() throws GeneralSecurityException, IOException {
         HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
         JacksonFactory jsonFactory = new JacksonFactory();
@@ -110,12 +92,12 @@ public abstract class BaseResource {
     }
 
     public static EntityManager getEntityManager(String persistenceUnitName, Logger _logger) {
-        if (!factory.containsKey(persistenceUnitName)) {
+        if (!entityFactory.containsKey(persistenceUnitName)) {
             _logger.info("Creating persistence unit: " + persistenceUnitName);
-            factory.put(persistenceUnitName,
+            entityFactory.put(persistenceUnitName,
                     Persistence.createEntityManagerFactory(persistenceUnitName));
         }
-        return factory.get(persistenceUnitName).createEntityManager();
+        return entityFactory.get(persistenceUnitName).createEntityManager();
     }
 
     public enum RecommenderTypeEnum {
@@ -124,12 +106,20 @@ public abstract class BaseResource {
         COLLABORATIVE_FILTERING,
         RANDOM;
 
-        private RecommenderTypeEnum(){}
+        RecommenderTypeEnum(){}
 
         public static RecommenderTypeEnum getRandomRecommender() {
             List<RecommenderTypeEnum> valuesAsList = Arrays.asList(values());
             Collections.shuffle(valuesAsList);
             return valuesAsList.get(0);
         }
+    }
+
+    private static RMendFactory getRmendFactory() {
+        if (entityFactory == null) {
+            logger.info("Generating a new RMendFactory instance");
+            rmendFactory = new RMendFactory();
+        }
+        return rmendFactory;
     }
 }
