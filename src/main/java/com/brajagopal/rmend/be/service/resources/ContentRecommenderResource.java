@@ -57,6 +57,7 @@ public class ContentRecommenderResource extends BaseResource {
                     .header("X-Response-Count", responseBean.size())
                     .build();
         } catch (DatastoreException e) {
+            errorMsg = e.getMessage();
             logger.warn(e);
         } catch (InvalidClassException e) {
             errorMsg = e.getMessage();
@@ -72,6 +73,7 @@ public class ContentRecommenderResource extends BaseResource {
             errorMsg = e.getMessage();
             logger.warn(e);
         } catch (TasteException e) {
+            responseStatus = Response.Status.NOT_FOUND;
             errorMsg = e.getMessage();
             logger.warn(e);
         }

@@ -62,6 +62,8 @@ public class CFRecommenderResource extends BaseResource {
         } catch (DatastoreException e) {
             logger.warn(e);
         } catch (DocumentNotFoundException e) {
+            responseStatus = Response.Status.NOT_FOUND;
+            errorMsg = e.getMessage();
             logger.warn(e);
         } catch (GeneralSecurityException e) {
             errorMsg = e.getMessage();
@@ -115,6 +117,8 @@ public class CFRecommenderResource extends BaseResource {
         } catch (DatastoreException e) {
             logger.warn(e);
         } catch (DocumentNotFoundException e) {
+            responseStatus = Response.Status.NOT_FOUND;
+            errorMsg = e.getMessage();
             logger.warn(e);
         } catch (GeneralSecurityException e) {
             errorMsg = e.getMessage();
@@ -126,8 +130,9 @@ public class CFRecommenderResource extends BaseResource {
             errorMsg = e.getMessage() + " not found.";
             logger.warn(e);
         } catch (TasteException e) {
+            responseStatus = Response.Status.NOT_FOUND;
             errorMsg = e.getMessage();
-            e.printStackTrace();
+            logger.warn(e);
         }
 
 
