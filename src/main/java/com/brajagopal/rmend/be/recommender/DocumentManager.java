@@ -66,6 +66,6 @@ public class DocumentManager {
 
     protected Collection<DocumentMeta> getDocumentMeta(String _metaIdentifier,  ResultsType resultsType) throws DatastoreException {
         Collection<DocumentMeta> entityValues = dao.getEntityMeta(_metaIdentifier);
-        return ResultsType.getResults(entityValues, resultsType);
+        return ResultsType.getResultsForCR(entityValues, resultsType);
     }
 }
