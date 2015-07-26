@@ -78,10 +78,10 @@ public class ViewResource extends BaseResource {
 
         try {
             manager.getTransaction().begin();
-            ViewEntity entity = manager.find(ViewEntity.class, userViewBean.getCompositeKey());
 
             // It is OK to view the same asset more than once!
-            /*if (entity != null) {
+            /*ViewEntity entity = manager.find(ViewEntity.class, userViewBean.getCompositeKey());
+            if (entity != null) {
                 throw new DuplicateEntryException(userViewBean.getCompositeKey());
             }*/
 
