@@ -58,6 +58,7 @@ public class CFRecommender implements IRecommender {
                         _userId, _resultsType.getDaoResultLimit());
 
         Collection<DocumentBean> results = new ArrayList<>(recommendations.size());
+
         for (RecommendedItem recommendedItem : recommendations) {
             try {
                 results.add(dao.getDocument(recommendedItem.getItemID()));
@@ -66,6 +67,10 @@ public class CFRecommender implements IRecommender {
                 logger.warn(e);
             }
         }
+
+        // Filter down the result (select randomly from the top results)
+        results = ResultsType.getResultsForCF(results, ResultsType.RANDOM_10);
+        results = ResultsType.getResultsForCF(results, _resultsType);
 
         RecResponseBean response = new RecResponseBean(
                 results, builder.getSimilarityClass().getSimpleName());
