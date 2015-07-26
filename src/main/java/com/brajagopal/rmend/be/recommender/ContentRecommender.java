@@ -64,12 +64,12 @@ public class ContentRecommender implements IRecommender {
                     return (documentMeta.getDocumentNumber() == _documentNumber);
                 }
             });
-            result.addAll(ResultsType.getResults(docMetas, _resultsType));
+            result.addAll(ResultsType.getResultsForCR(docMetas, _resultsType));
         }
 
         // Filter down the result (select randomly from the top results)
-        result = ResultsType.getResults(result, ResultsType.RANDOM_10);
-        result = ResultsType.getResults(result, _resultsType);
+        result = ResultsType.getResultsForCR(result, ResultsType.RANDOM_10);
+        result = ResultsType.getResultsForCR(result, _resultsType);
 
         Collection<DocumentBean> recommendedResults = new ArrayList<DocumentBean>();
         for (DocumentMeta docMeta : result) {
