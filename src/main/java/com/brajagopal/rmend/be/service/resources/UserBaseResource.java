@@ -18,7 +18,6 @@ public class UserBaseResource extends BaseResource {
 
     public static UserBean getUserByUUID(String uuId) throws UserNotFoundException {
         EntityManager manager = getEntityManager("users-entity", logger);
-        UserBean retVal;
         try {
             Query query = manager.createQuery("SELECT u FROM "
                     + UserEntity.class.getName()
@@ -40,7 +39,6 @@ public class UserBaseResource extends BaseResource {
 
     public static UserBean getUserByUID(Long uid) throws UserNotFoundException {
         EntityManager manager = getEntityManager("users-entity", logger);
-        UserBean retVal;
         try {
             Query query = manager.createQuery("SELECT u FROM "
                     + UserEntity.class.getName()
@@ -52,6 +50,27 @@ public class UserBaseResource extends BaseResource {
             else if (results.size() > 1) {
                 throw new UnsupportedOperationException(
                         "Too many ("+results.size()+") entities with the same UID ("+uid+")");
+            }
+            return results.get(0).getUserBean();
+        }
+        finally {
+            manager.close();
+        }
+    }
+
+    public static UserBean getUserByUsername(String username) throws UserNotFoundException {
+        EntityManager manager = getEntityManager("users-entity", logger);
+        try {
+            Query query = manager.createQuery("SELECT u FROM "
+                    + UserEntity.class.getName()
+                    + " u WHERE u.userName = " + username + "");
+            List<UserEntity> results = query.getResultList();
+            if (results.isEmpty()) {
+                throw new UserNotFoundException("Username", username);
+            }
+            else if (results.size() > 1) {
+                throw new UnsupportedOperationException(
+                        "Too many ("+results.size()+") entities with the same Username ("+username+")");
             }
             return results.get(0).getUserBean();
         }
