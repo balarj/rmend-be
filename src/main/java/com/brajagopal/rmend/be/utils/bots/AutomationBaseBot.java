@@ -2,6 +2,7 @@ package com.brajagopal.rmend.be.utils.bots;
 
 import com.brajagopal.rmend.be.beans.AutomationBotTraceBean;
 import com.brajagopal.rmend.be.service.resources.BaseResource;
+import com.google.api.client.repackaged.com.google.common.base.Strings;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import org.apache.commons.cli.BasicParser;
@@ -25,11 +26,11 @@ public abstract class AutomationBaseBot extends BaseResource {
     protected AutomationBaseBot(String _userId, String _topic) {
         responseTraceBeans = HashMultimap.create();
 
-        if (_userId == null) {
+        if (Strings.isNullOrEmpty(_userId)) {
             throw new NullPointerException("UID is a required environment variable (cannot be null");
         }
 
-        if (_topic == null) {
+        if (Strings.isNullOrEmpty(_topic)) {
             throw new NullPointerException("TOPIC is a required environment variable (cannot be null");
         }
 
