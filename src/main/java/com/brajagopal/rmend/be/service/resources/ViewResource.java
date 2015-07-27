@@ -117,7 +117,7 @@ public class ViewResource extends BaseResource {
 
     @DELETE
     @Path("/impression/uuid/{uuid}")
-    public Response deleteUserViews(@PathParam("uuid") String uuId) {
+    public Response deleteUserViewsByUUID(@PathParam("uuid") String uuId) {
         Response.ResponseBuilder response = Response.serverError();
 
         UserBean userDetails = null;
@@ -131,19 +131,12 @@ public class ViewResource extends BaseResource {
                     .build();
         }
 
-        //TODO: Validate if the uid and docNum are valid
-        EntityManager manager = getEntityManager("users-entity", logger);
-
         int deletedCount;
         try {
-            manager.getTransaction().begin();
-            Query q = manager.createQuery("DELETE FROM " + ViewEntity.class.getName()
-                    + " views WHERE views.uid = :u");
-            deletedCount = q.setParameter("u", userDetails.getUid()).executeUpdate();
-            manager.getTransaction().commit();
+            deletedCount = doDelete(userDetails);
         }
         catch (Exception e) {
-            e.printStackTrace();
+            logger.info(userDetails);
             logger.error(e);
             return response
                     .header("X-UUID", uuId)
@@ -151,16 +144,9 @@ public class ViewResource extends BaseResource {
                     .status(Response.Status.INTERNAL_SERVER_ERROR)
                     .build();
         }
-        finally {
-            if (manager.getTransaction().isActive()) {
-                manager.getTransaction().rollback();
-            }
-            manager.close();
-        }
 
         if (deletedCount == 0) {
             return response
-                    .header("X-Deleted-Count", deletedCount)
                     .header("X-UUID", uuId)
                     .status(Response.Status.NOT_FOUND)
                     .build();
@@ -170,6 +156,113 @@ public class ViewResource extends BaseResource {
                 .header("X-UUID", uuId)
                 .header("X-Deleted-Count", deletedCount)
                 .build();
+    }
+
+    @DELETE
+    @Path("/impression/uid/{uid}")
+    public Response deleteUserViewsByUID(@PathParam("uid") Long uid) {
+        Response.ResponseBuilder response = Response.serverError();
+
+        UserBean userDetails = null;
+        try {
+            userDetails = UserBaseResource.getUserByUID(uid);
+        } catch (UserNotFoundException e) {
+            return response
+                    .header("X-UID", uid)
+                    .header("X-Error-Msg", e.getMessage())
+                    .status(Response.Status.NOT_FOUND)
+                    .build();
+        }
+
+        int deletedCount;
+        try {
+            deletedCount = doDelete(userDetails);
+        }
+        catch (Exception e) {
+            logger.info(userDetails);
+            logger.error(e);
+            return response
+                    .header("X-UUID", uid)
+                    .header("X-Error-Msg", e.getMessage())
+                    .status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .build();
+        }
+
+        if (deletedCount == 0) {
+            return response
+                    .header("X-UID", uid)
+                    .status(Response.Status.NOT_FOUND)
+                    .build();
+        }
+
+        return response.status(Response.Status.OK)
+                .header("X-UID", uid)
+                .header("X-Deleted-Count", deletedCount)
+                .build();
+    }
+
+    @DELETE
+    @Path("/impression/username/{username}")
+    public Response deleteUserViewsByUsername(@PathParam("username") String username) {
+        Response.ResponseBuilder response = Response.serverError();
+
+        UserBean userDetails = null;
+        try {
+            userDetails = UserBaseResource.getUserByUsername(username);
+        } catch (UserNotFoundException e) {
+            return response
+                    .header("X-Username", username)
+                    .header("X-Error-Msg", e.getMessage())
+                    .status(Response.Status.NOT_FOUND)
+                    .build();
+        }
+
+        int deletedCount;
+        try {
+            deletedCount = doDelete(userDetails);
+        }
+        catch (Exception e) {
+            logger.info(userDetails);
+            logger.error(e);
+            return response
+                    .header("X-Username", username)
+                    .header("X-Error-Msg", e.getMessage())
+                    .status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .build();
+        }
+
+        if (deletedCount == 0) {
+            return response
+                    .header("X-Username", username)
+                    .status(Response.Status.NOT_FOUND)
+                    .build();
+        }
+
+        return response.status(Response.Status.OK)
+                .header("X-Username", username)
+                .header("X-Deleted-Count", deletedCount)
+                .build();
+    }
+
+    private static int doDelete(UserBean _userBean) {
+        //TODO: Validate if the uid and docNum are valid
+        EntityManager manager = getEntityManager("users-entity", logger);
+
+        int deletedCount;
+        try {
+            manager.getTransaction().begin();
+            Query q = manager.createQuery("DELETE FROM " + ViewEntity.class.getName()
+                    + " views WHERE views.uid = :u");
+            deletedCount = q.setParameter("u", _userBean.getUid()).executeUpdate();
+            manager.getTransaction().commit();
+        }
+        finally {
+            if (manager.getTransaction().isActive()) {
+                manager.getTransaction().rollback();
+            }
+            manager.close();
+        }
+        return deletedCount;
     }
 
     private boolean isValidationStrict() {
