@@ -4,6 +4,7 @@ import com.brajagopal.rmend.data.ResultsType;
 import com.brajagopal.rmend.data.beans.DocumentBean;
 import com.brajagopal.rmend.exception.DocumentNotFoundException;
 import com.brajagopal.rmend.utils.DocumentManager;
+import com.brajagopal.rmend.utils.RMendFactory;
 import com.brajagopal.rmend.utils.RmendRequestAdapter;
 import com.google.api.services.datastore.client.DatastoreException;
 import com.google.common.base.Function;
@@ -11,6 +12,7 @@ import com.google.common.collect.Collections2;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.nio.reactor.IOReactorException;
 import org.apache.log4j.Logger;
@@ -31,6 +33,9 @@ public class TopicBasedSelectorBot extends AutomationBaseBot implements IAutomat
     private final RmendRequestAdapter requestAdapter;
     private ResultsType resultsType;
 
+    private static final String DEFAULT_UID = "1";
+    private static final String DEFAULT_TOPIC = "sports";
+
     private static final String ENDPOINT_TEMPLATE = "/v1/view/impression?referrer=AUTOBOT";
 
     @SuppressWarnings("unused")
@@ -42,26 +47,44 @@ public class TopicBasedSelectorBot extends AutomationBaseBot implements IAutomat
         super(_userId, _topic);
         this.resultsType = _resultsType;
         requestAdapter = new RmendRequestAdapter(_targetHost, ENDPOINT_TEMPLATE);
+
+        System.out.println();
+        logger.info(StringUtils.repeat("-","*",30));
+        logger.info("Target Host: "+_targetHost);
+        logger.info("UID: "+_userId);
+        logger.info("Topic: "+_topic);
+        logger.info("Result type: "+_resultsType);
+        logger.info(StringUtils.repeat("-","*",30));
     }
 
     public static void main(String[] args) {
         try {
             CommandLine cli = cliParser.parse(getCliOptions(), args);
-            ResultsType resultsType;
-            if (cli.getOptionValue('m') != null) {
-                resultsType = ResultsType.valueOf(cli.getOptionValue('m'));
-                if (resultsType == null) {
-                    resultsType = ResultsType.RANDOM_10;
-                }
+
+            // Populate ResultsType
+            ResultsType resultsType = null;
+            String sResultsType = getOptionValue(cli, 'm', "Enter the ResultType (default: RANDOM_10)", ResultsType.RANDOM_10.toString());
+            try {
+                resultsType = ResultsType.valueOf(sResultsType);
             }
-            else {
+            catch (IllegalArgumentException e) {}
+            if (resultsType == null) {
                 resultsType = ResultsType.RANDOM_10;
             }
 
+            // Populate Host endpoint
+            String sTargetHost = getOptionValue(cli, 'h', "Enter the Target host (default: localhost)", "http://localhost:8088");
+
+            // Populate the UID value
+            String sUidValue = getOptionValue(cli, 'u', "Enter the UID value (required)", DEFAULT_UID);
+
+            // Populate the Topic value
+            String sTopicValue = getOptionValue(cli, 't', "Enter the Topic (required)", DEFAULT_TOPIC);
+
             final IAutomationBot autoBot = new TopicBasedSelectorBot(
-                    cli.getOptionValue('h', "http://localhost:8088"),
-                    cli.getOptionValue('u'),
-                    cli.getOptionValue('t'),
+                    sTargetHost,
+                    sUidValue,
+                    sTopicValue,
                     resultsType
             );
 
@@ -81,12 +104,16 @@ public class TopicBasedSelectorBot extends AutomationBaseBot implements IAutomat
     @Override
     public void start() {
         try {
+            logger.info("Retrieving documents....");
             Collection<Long> docNumbers = getDocumentsForTopic();
+            logger.info("Successfully retrieved " + docNumbers.size() + " documents.");
             if (docNumbers.isEmpty()) {
                 logger.warn("No documents retrieved.. nothing to fetch!");
                 return;
             }
+            logger.info("Triggering requests....");
             makeRequests(docNumbers);
+            logger.info("---- DONE ----");
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         } catch (InvalidClassException e) {
@@ -144,5 +171,24 @@ public class TopicBasedSelectorBot extends AutomationBaseBot implements IAutomat
         options.addOption("m", "mode", true, "The ResultType");
 
         return options;
+    }
+
+    protected static String getOptionValue(CommandLine _cli, char _option, String _message, String _defaultValue) {
+        String inputValue;
+        String optionValue;
+
+        // Check option value
+        optionValue = _cli.getOptionValue(_option);
+        if (optionValue != null) {
+            return optionValue;
+        }
+
+        // check input value
+        inputValue = RMendFactory.getUserInput(_message);
+        if (inputValue != null) {
+            return inputValue;
+        }
+
+        return _defaultValue;
     }
 }
