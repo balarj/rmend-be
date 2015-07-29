@@ -5,3 +5,5 @@ target/
 *.iml
 web/
 datanucleus.log
+patch/
+conf/
