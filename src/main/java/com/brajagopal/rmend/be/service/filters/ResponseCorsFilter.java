@@ -33,7 +33,7 @@ public class ResponseCorsFilter implements ContainerResponseFilter {
 
         containerResponseContext.getHeaders().add(
                 "Access-Control-Expose-Headers",
-                "X-Recommendation-Type, X-Response-Count, X-Result-Type, X-Error-Msg"
+                "X-Recommendation-Type, X-Recommendation-Method, X-Response-Count, X-Result-Type, X-Error-Msg"
         );
     }
 }
