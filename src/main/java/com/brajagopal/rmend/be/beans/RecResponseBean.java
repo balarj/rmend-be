@@ -11,6 +11,7 @@ public class RecResponseBean {
 
     public Collection<DocumentBean> results;
     public String similarityType;
+    public String similarityClass;
 
     public RecResponseBean(Collection<DocumentBean> _docBean, String _similarityType) {
         this.results = _docBean;
@@ -19,10 +20,16 @@ public class RecResponseBean {
 
     @Override
     public String toString() {
-        return "CFRecommendResponse{" +
+        return "RecResponseBean{" +
                 "results=" + results +
                 ", similarityType='" + similarityType + '\'' +
+                ", similarityClass='" + similarityClass + '\'' +
                 '}';
+    }
+
+    public RecResponseBean(Collection<DocumentBean> _docBean, String _similarityType, String _similarityClass) {
+        this(_docBean, _similarityType);
+        this.similarityClass = _similarityClass;
     }
 
     public Collection<DocumentBean> getResults() {
@@ -31,6 +38,10 @@ public class RecResponseBean {
 
     public String getSimilarityType() {
         return similarityType;
+    }
+
+    public String getSimilarityClass() {
+        return similarityClass;
     }
 
     public boolean isEmpty() {
