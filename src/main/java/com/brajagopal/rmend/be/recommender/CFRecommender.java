@@ -105,7 +105,7 @@ public class CFRecommender implements IRecommender {
         results = ResultsType.getResultsForCF(results, _resultsType);
 
         RecResponseBean response = new RecResponseBean(
-                results, builder.getSimilarityClass().getSimpleName());
+                results, "CollaborativeFiltering", builder.getSimilarityClass().getSimpleName());
 
         return response;
     }

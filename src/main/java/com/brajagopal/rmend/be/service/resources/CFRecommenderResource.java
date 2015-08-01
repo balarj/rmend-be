@@ -112,6 +112,7 @@ public class CFRecommenderResource extends BaseResource {
                     .entity(responseBean.getResults())
                     .header("X-Result-Type", resultsType)
                     .header("X-Recommendation-Type", responseBean.getSimilarityType())
+                    .header("X-Recommendation-Method", responseBean.getSimilarityClass())
                     .header("X-Response-Count", responseBean.size())
                     .build();
         } catch (DatastoreException e) {
