@@ -15,6 +15,7 @@ public class ViewEntity {
 
     private Long uid;
     private Long docNum;
+    private Long parentDocNum;
     @Unindexed private long timestamp;
     @Unindexed private String impressionTime;
     @Id private String compositeKey;
@@ -32,10 +33,13 @@ public class ViewEntity {
         this.compositeKey = _uid + UserViewBean.COMPOSITE_KEY_SEPARATOR + _docNum;
     }
 
-    private ViewEntity(Long _uid, Long _docNum, String _referrer) {
+    private ViewEntity(Long _uid, Long _docNum, Long _parentDocNum, String _referrer) {
         DateTime dtNow = DateTime.now();
         this.uid = _uid;
         this.docNum = _docNum;
+        if (_parentDocNum > 0) {
+            this.parentDocNum = _parentDocNum;
+        }
         this.timestamp = dtNow.getMillis();
         this.impressionTime = dtNow.toString("YYYY-MM-dd HH:mm:ss");
         this.compositeKey = _uid + UserViewBean.COMPOSITE_KEY_SEPARATOR + _docNum;
@@ -48,6 +52,7 @@ public class ViewEntity {
         return new ViewEntity(
                 userViewBean.getUid(),
                 userViewBean.getDocNum(),
+                userViewBean.getParentDocNum(),
                 userViewBean.getReferrer()
         );
     }
@@ -98,6 +103,14 @@ public class ViewEntity {
 
     public void setReferrer(String referrer) {
         this.referrer = referrer;
+    }
+
+    public Long getParentDocNum() {
+        return parentDocNum;
+    }
+
+    public void setParentDocNum(Long parentDocNum) {
+        this.parentDocNum = parentDocNum;
     }
 
     @Override
