@@ -34,13 +34,13 @@ public class TopicBasedSelectorBot extends AutomationBaseBot implements IAutomat
     private ResultsType resultsType;
 
     private static final String DEFAULT_UID = "1";
-    private static final String DEFAULT_TOPIC = "sports";
+    private static final String DEFAULT_TOPIC = "social_issues";
 
     private static final String ENDPOINT_TEMPLATE = "/v1/view/impression?referrer=AUTOBOT";
 
     @SuppressWarnings("unused")
     protected TopicBasedSelectorBot(String _targetHost, String _userId, String _topic) throws IOReactorException {
-        this(_targetHost, _userId, _topic, ResultsType.RANDOM_10);
+        this(_targetHost, _userId, _topic, ResultsType.RANDOM_20);
     }
 
     protected TopicBasedSelectorBot(String _targetHost, String _userId, String _topic, ResultsType _resultsType) throws IOReactorException {
@@ -53,7 +53,7 @@ public class TopicBasedSelectorBot extends AutomationBaseBot implements IAutomat
         logger.info("Target Host: "+_targetHost);
         logger.info("UID: "+_userId);
         logger.info("Topic: "+_topic);
-        logger.info("Result type: "+_resultsType);
+        logger.info("Result type: "+resultsType);
         logger.info(StringUtils.repeat("-","*",30));
     }
 
@@ -63,13 +63,13 @@ public class TopicBasedSelectorBot extends AutomationBaseBot implements IAutomat
 
             // Populate ResultsType
             ResultsType resultsType = null;
-            String sResultsType = getOptionValue(cli, 'm', "Enter the ResultType (default: RANDOM_10)", ResultsType.RANDOM_10.toString());
+            String sResultsType = getOptionValue(cli, 'm', "Enter the ResultType (default: RANDOM_20)", ResultsType.RANDOM_20.toString());
             try {
                 resultsType = ResultsType.valueOf(sResultsType);
             }
             catch (IllegalArgumentException e) {}
             if (resultsType == null) {
-                resultsType = ResultsType.RANDOM_10;
+                resultsType = ResultsType.RANDOM_20;
             }
 
             // Populate Host endpoint
